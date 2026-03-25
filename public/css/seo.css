@@ -1,0 +1,8 @@
+/* SEO pages */
+.seo-hero {
+    padding-bottom: var(--space-xl);
+}
+
+.seo-hero h1 {
+    font-size: 2.75rem;
+}
