@@ -5,9 +5,9 @@
 (function () {
     'use strict';
 
-    // Elements
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
+    const previewGrid = document.getElementById('previewGrid');
     const compressOptions = document.getElementById('compressOptions');
     const qualitySlider = document.getElementById('qualitySlider');
     const qualityValue = document.getElementById('qualityValue');
@@ -17,7 +17,6 @@
     const resultsList = document.getElementById('resultsList');
     const downloadAllBtn = document.getElementById('downloadAllBtn');
     const newCompressionBtn = document.getElementById('newCompressionBtn');
-    const beforeAfterSection = document.getElementById('beforeAfterSection');
 
     if (!dropZone) return;
 
@@ -51,30 +50,81 @@
         selectedFiles = Array.from(files).filter(f => validTypes.includes(f.type));
 
         if (selectedFiles.length === 0) {
-            showNotification('Veuillez sélectionner des images PNG, JPEG ou WebP.', 'error');
+            showNotification('Sélectionnez des images PNG, JPEG ou WebP.', 'error');
             return;
         }
 
-        const maxSize = 10 * 1024 * 1024; // 10 MB
+        const maxSize = 10 * 1024 * 1024;
         const tooBig = selectedFiles.filter(f => f.size > maxSize);
         if (tooBig.length > 0) {
-            showNotification(`${tooBig.length} fichier(s) dépassent 10 Mo et seront ignorés.`, 'warning');
+            showNotification(tooBig.length + ' fichier(s) trop volumineux (> 10 Mo), ignorés.', 'warning');
             selectedFiles = selectedFiles.filter(f => f.size <= maxSize);
         }
 
         if (selectedFiles.length > 10) {
-            showNotification('Maximum 10 images en mode gratuit. Passez en Pro pour 100.', 'warning');
+            showNotification('Max 10 images en gratuit. Les suivantes sont ignorées.', 'warning');
             selectedFiles = selectedFiles.slice(0, 10);
         }
 
-        // Show options
+        // Show previews
+        showPreviews();
+
+        // Show options, hide results
         compressOptions.style.display = '';
         resultsContainer.style.display = 'none';
-        beforeAfterSection.style.display = 'none';
+    }
 
-        // Update drop zone text
-        dropZone.querySelector('.drop-zone-text').innerHTML =
-            `<strong>${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} sélectionnée${selectedFiles.length > 1 ? 's' : ''}</strong>`;
+    // ───── Previews ─────
+
+    function showPreviews() {
+        previewGrid.innerHTML = '';
+        previewGrid.style.display = '';
+
+        selectedFiles.forEach((file, i) => {
+            const card = document.createElement('div');
+            card.className = 'preview-card';
+
+            const img = document.createElement('img');
+            img.className = 'preview-img';
+            img.alt = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => { img.src = e.target.result; };
+            reader.readAsDataURL(file);
+
+            const info = document.createElement('div');
+            info.className = 'preview-info';
+
+            const name = document.createElement('span');
+            name.className = 'preview-name';
+            name.textContent = file.name;
+
+            const size = document.createElement('span');
+            size.className = 'preview-size';
+            size.textContent = formatSize(file.size);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'preview-remove';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = 'Retirer';
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectedFiles.splice(i, 1);
+                if (selectedFiles.length === 0) {
+                    previewGrid.style.display = 'none';
+                    compressOptions.style.display = 'none';
+                } else {
+                    showPreviews();
+                }
+            });
+
+            info.appendChild(name);
+            info.appendChild(size);
+            card.appendChild(removeBtn);
+            card.appendChild(img);
+            card.appendChild(info);
+            previewGrid.appendChild(card);
+        });
     }
 
     // ───── Quality Slider ─────
@@ -91,9 +141,8 @@
         btn.addEventListener('click', () => {
             const mode = btn.dataset.mode;
 
-            // Check Pro requirement
             if (mode === 'mega' && !btn.classList.contains('pro-only-unlocked')) {
-                showNotification('La méga compression nécessite un abonnement Pro.', 'info');
+                showNotification('La méga compression est réservée aux abonnés Pro.', 'info');
                 return;
             }
 
@@ -101,14 +150,9 @@
             btn.classList.add('active');
             currentMode = mode;
 
-            // Adjust quality for mode
-            if (mode === 'smart') {
-                qualitySlider.value = 80;
-            } else if (mode === 'max') {
-                qualitySlider.value = 50;
-            } else {
-                qualitySlider.value = 30;
-            }
+            if (mode === 'smart') qualitySlider.value = 80;
+            else if (mode === 'max') qualitySlider.value = 50;
+            else qualitySlider.value = 30;
             qualityValue.textContent = qualitySlider.value + '%';
         });
     });
@@ -123,70 +167,46 @@
         if (selectedFiles.length === 0) return;
 
         compressBtn.disabled = true;
-        compressBtn.innerHTML = '<span class="spinner"></span> Compression en cours...';
+        compressBtn.innerHTML = '<span class="spinner"></span> Compression...';
 
         compressedFiles = [];
         resultsList.innerHTML = '';
 
         const quality = parseInt(qualitySlider.value) / 100;
-
         let totalOriginal = 0;
         let totalCompressed = 0;
 
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
-
             try {
                 const result = await compressImage(file, quality);
                 compressedFiles.push(result);
-
                 totalOriginal += file.size;
                 totalCompressed += result.blob.size;
-
                 addResultItem(result, i);
             } catch (err) {
-                console.error('Compression error:', err);
                 addErrorItem(file.name, err.message);
             }
         }
 
         // Summary
-        resultsSummary.innerHTML = `
-            <div class="summary-stat">
-                <span class="stat-label">Images</span>
-                <span class="stat-value">${compressedFiles.length}</span>
-            </div>
-            <div class="summary-stat">
-                <span class="stat-label">Taille originale</span>
-                <span class="stat-value">${formatSize(totalOriginal)}</span>
-            </div>
-            <div class="summary-stat">
-                <span class="stat-label">Taille compressée</span>
-                <span class="stat-value">${formatSize(totalCompressed)}</span>
-            </div>
-            <div class="summary-stat">
-                <span class="stat-label">Économisé</span>
-                <span class="stat-value" style="color:var(--success)">${formatPercent(totalOriginal, totalCompressed)}</span>
-            </div>
-        `;
+        resultsSummary.innerHTML =
+            '<div class="summary-stat"><span class="stat-label">Images</span><span class="stat-value">' + compressedFiles.length + '</span></div>' +
+            '<div class="summary-stat"><span class="stat-label">Avant</span><span class="stat-value">' + formatSize(totalOriginal) + '</span></div>' +
+            '<div class="summary-stat"><span class="stat-label">Après</span><span class="stat-value">' + formatSize(totalCompressed) + '</span></div>' +
+            '<div class="summary-stat"><span class="stat-label">Gagné</span><span class="stat-value" style="color:var(--success)">-' + formatPercent(totalOriginal, totalCompressed) + '</span></div>';
 
         resultsContainer.style.display = '';
+        previewGrid.style.display = 'none';
+        compressOptions.style.display = 'none';
+
         compressBtn.disabled = false;
-        compressBtn.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 8L10 2L16 8M4 12L10 18L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Compresser les images
-        `;
+        compressBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 8L10 2L16 8M4 12L10 18L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Compresser';
 
-        // Show before/after for first image
-        if (compressedFiles.length > 0) {
-            showBeforeAfter(compressedFiles[0]);
-        }
-
-        // Scroll to results
         resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // ───── Client-side compression using Canvas ─────
+    // ───── Client-side compression via Canvas ─────
 
     function compressImage(file, quality) {
         return new Promise((resolve, reject) => {
@@ -200,7 +220,6 @@
                     let width = img.naturalWidth;
                     let height = img.naturalHeight;
 
-                    // For max mode, limit dimensions
                     if (currentMode === 'max' && (width > 2000 || height > 2000)) {
                         const ratio = Math.min(2000 / width, 2000 / height);
                         width = Math.round(width * ratio);
@@ -210,7 +229,6 @@
                     canvas.width = width;
                     canvas.height = height;
 
-                    // White background for JPEG (no alpha)
                     if (file.type === 'image/jpeg') {
                         ctx.fillStyle = '#ffffff';
                         ctx.fillRect(0, 0, width, height);
@@ -218,38 +236,27 @@
 
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Determine output type
                     let outputType = file.type;
                     let outputQuality = quality;
 
-                    // For PNG, convert to webp or use PNG compression
-                    if (file.type === 'image/png') {
-                        // Keep PNG but at reduced quality if WebP is supported
-                        outputType = 'image/png';
-                        // Canvas PNG doesn't have quality param, so we convert to WebP for better compression
-                        if (currentMode !== 'smart' || quality < 0.7) {
-                            outputType = 'image/webp';
-                            outputQuality = quality;
-                        }
+                    if (file.type === 'image/png' && (currentMode !== 'smart' || quality < 0.7)) {
+                        outputType = 'image/webp';
                     }
 
                     canvas.toBlob(
                         (blob) => {
-                            if (!blob) {
-                                reject(new Error('Échec de la compression'));
-                                return;
-                            }
+                            if (!blob) { reject(new Error('Erreur de compression')); return; }
 
-                            // If compressed is larger than original, use original quality settings
                             if (blob.size >= file.size && quality > 0.5) {
                                 canvas.toBlob(
                                     (blob2) => {
+                                        const best = (blob2 && blob2.size < file.size) ? blob2 : blob;
                                         resolve({
                                             name: file.name,
                                             originalSize: file.size,
-                                            blob: blob2 && blob2.size < file.size ? blob2 : blob,
-                                            originalUrl: e.target.result,
-                                            compressedUrl: URL.createObjectURL(blob2 && blob2.size < file.size ? blob2 : blob),
+                                            blob: best,
+                                            thumbUrl: e.target.result,
+                                            compressedUrl: URL.createObjectURL(best),
                                             type: outputType,
                                         });
                                     },
@@ -263,7 +270,7 @@
                                 name: file.name,
                                 originalSize: file.size,
                                 blob: blob,
-                                originalUrl: e.target.result,
+                                thumbUrl: e.target.result,
                                 compressedUrl: URL.createObjectURL(blob),
                                 type: outputType,
                             });
@@ -280,41 +287,30 @@
         });
     }
 
-    // ───── UI Helpers ─────
+    // ───── UI ─────
 
     function addResultItem(result, index) {
-        const savings = formatPercent(result.originalSize, result.blob.size);
         const ext = result.type.split('/')[1] === 'webp' ? '.webp' : '';
         const downloadName = result.name.replace(/\.[^.]+$/, '') + '-compresse' + (ext || result.name.match(/\.[^.]+$/)?.[0] || '.jpg');
 
         const item = document.createElement('div');
         item.className = 'result-item';
-        item.innerHTML = `
-            <img src="${result.compressedUrl}" alt="" class="result-thumb">
-            <div class="result-info">
-                <div class="result-name">${escapeHtml(result.name)}</div>
-                <div class="result-meta">
-                    <span>${formatSize(result.originalSize)} → ${formatSize(result.blob.size)}</span>
-                    <span class="result-savings">-${savings}</span>
-                </div>
-            </div>
-            <div class="result-actions">
-                <button class="result-btn" title="Comparer avant/après" data-index="${index}">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2V16M2 9H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-                <button class="result-btn download-btn" title="Télécharger" data-index="${index}">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2V12M9 12L5 8M9 12L13 8M2 15H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
-        `;
+        item.innerHTML =
+            '<img src="' + result.thumbUrl + '" alt="" class="result-thumb">' +
+            '<div class="result-info">' +
+                '<div class="result-name">' + escapeHtml(result.name) + '</div>' +
+                '<div class="result-meta">' +
+                    '<span>' + formatSize(result.originalSize) + ' &rarr; ' + formatSize(result.blob.size) + '</span>' +
+                    '<span class="result-savings">-' + formatPercent(result.originalSize, result.blob.size) + '</span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="result-actions">' +
+                '<button class="btn btn-primary btn-sm download-btn" data-index="' + index + '">' +
+                    '<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2V12M9 12L5 8M9 12L13 8M2 15H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+                    ' Télécharger' +
+                '</button>' +
+            '</div>';
 
-        // Compare button
-        item.querySelector('[title="Comparer avant/après"]').addEventListener('click', () => {
-            showBeforeAfter(result);
-            beforeAfterSection.scrollIntoView({ behavior: 'smooth' });
-        });
-
-        // Download button
         item.querySelector('.download-btn').addEventListener('click', () => {
             downloadBlob(result.blob, downloadName);
         });
@@ -324,31 +320,13 @@
 
     function addErrorItem(name, error) {
         const item = document.createElement('div');
-        item.className = 'result-item';
-        item.style.borderColor = 'var(--error-light)';
-        item.innerHTML = `
-            <div class="result-info">
-                <div class="result-name">${escapeHtml(name)}</div>
-                <div class="result-meta" style="color:var(--error)">${escapeHtml(error)}</div>
-            </div>
-        `;
+        item.className = 'result-item result-item-error';
+        item.innerHTML =
+            '<div class="result-info">' +
+                '<div class="result-name">' + escapeHtml(name) + '</div>' +
+                '<div class="result-meta" style="color:var(--error)">' + escapeHtml(error) + '</div>' +
+            '</div>';
         resultsList.appendChild(item);
-    }
-
-    function showBeforeAfter(result) {
-        const baOriginal = document.getElementById('baOriginal');
-        const baCompressed = document.getElementById('baCompressed');
-
-        baOriginal.src = result.originalUrl;
-        baCompressed.src = result.compressedUrl;
-
-        beforeAfterSection.style.display = '';
-
-        // Re-init the slider
-        if (typeof initBeforeAfter === 'function') {
-            // Wait for images to load
-            baOriginal.onload = () => initBeforeAfter();
-        }
     }
 
     // ───── Download ─────
@@ -374,7 +352,7 @@
         });
     }
 
-    // ───── New Compression ─────
+    // ───── Reset ─────
 
     if (newCompressionBtn) {
         newCompressionBtn.addEventListener('click', () => {
@@ -383,7 +361,8 @@
             resultsList.innerHTML = '';
             resultsContainer.style.display = 'none';
             compressOptions.style.display = 'none';
-            beforeAfterSection.style.display = 'none';
+            previewGrid.style.display = 'none';
+            previewGrid.innerHTML = '';
             fileInput.value = '';
 
             dropZone.querySelector('.drop-zone-text').innerHTML =
@@ -412,23 +391,21 @@
         return div.innerHTML;
     }
 
-    function showNotification(message, type = 'info') {
-        const container = document.querySelector('.flash-container') || createFlashContainer();
+    function showNotification(message, type) {
+        const container = document.querySelector('.flash-container') || (() => {
+            const c = document.createElement('div');
+            c.className = 'flash-container';
+            document.body.appendChild(c);
+            return c;
+        })();
         const flash = document.createElement('div');
-        flash.className = `flash flash-${type}`;
-        flash.innerHTML = `<span>${escapeHtml(message)}</span><button class="flash-close" onclick="this.parentElement.remove()">&times;</button>`;
+        flash.className = 'flash flash-' + (type || 'info');
+        flash.innerHTML = '<span>' + escapeHtml(message) + '</span><button class="flash-close" onclick="this.parentElement.remove()">&times;</button>';
         container.appendChild(flash);
         setTimeout(() => {
             flash.style.opacity = '0';
             flash.style.transform = 'translateX(20px)';
             setTimeout(() => flash.remove(), 300);
         }, 4000);
-    }
-
-    function createFlashContainer() {
-        const container = document.createElement('div');
-        container.className = 'flash-container';
-        document.body.appendChild(container);
-        return container;
     }
 })();

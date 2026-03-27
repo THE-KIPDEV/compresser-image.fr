@@ -1,87 +1,93 @@
 /* Hero */
 .hero {
-    padding: var(--space-4xl) 0 var(--space-2xl);
+    padding: var(--space-3xl) 0 var(--space-xl);
     text-align: center;
-    background: linear-gradient(180deg, var(--primary-50) 0%, var(--bg) 100%);
-}
-
-.hero-badge {
-    display: inline-flex;
-    padding: 0.4rem 1rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--primary);
-    background: white;
-    border: 1px solid var(--primary-100);
-    border-radius: var(--radius-full);
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow-sm);
 }
 
 .hero h1 {
-    font-size: 3.25rem;
+    font-size: 2.75rem;
     font-weight: 800;
-    letter-spacing: -0.04em;
-    margin-bottom: 1.25rem;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    color: var(--gray-900);
 }
 
 .hero-sub {
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
     color: var(--text-secondary);
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 560px;
+    margin: 0 auto 1.5rem;
     line-height: 1.7;
 }
 
-/* Features */
-.features {
-    padding: var(--space-4xl) 0;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-}
-
-.feature-card {
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    background: var(--bg);
-    transition: all var(--transition-slow);
-}
-.feature-card:hover {
-    border-color: var(--primary-100);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
-}
-
-.feature-icon {
-    width: 52px;
-    height: 52px;
+.hero-formats {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius);
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-    color: var(--accent);
-    margin-bottom: 1.25rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
-.feature-card h3 {
-    margin-bottom: 0.5rem;
+.format-pill {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--gray-600);
+    background: var(--gray-100);
+    border-radius: var(--radius-full);
 }
 
-.feature-card p {
-    color: var(--text-secondary);
+.format-pill-sep {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--success);
+    background: var(--success-light);
+    border-radius: var(--radius-full);
+}
+
+/* Reassurance */
+.reassurance {
+    padding: var(--space-2xl) 0;
+    border-top: 1px solid var(--gray-100);
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.reassurance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.reassurance-item {
+    display: flex;
+    gap: 0.875rem;
+    align-items: flex-start;
+}
+
+.reassurance-item svg {
+    flex-shrink: 0;
+    color: var(--primary);
+    margin-top: 2px;
+}
+
+.reassurance-item strong {
+    display: block;
     font-size: 0.9375rem;
-    line-height: 1.7;
+    margin-bottom: 0.2rem;
+}
+
+.reassurance-item p {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
 }
 
 /* How it works */
 .how-it-works {
-    padding: var(--space-4xl) 0;
+    padding: var(--space-3xl) 0;
     background: var(--bg-soft);
 }
 
@@ -94,32 +100,34 @@
 
 .step {
     text-align: center;
-    padding: 2rem;
+    padding: 1.5rem;
     flex: 1;
-    max-width: 280px;
+    max-width: 260px;
 }
 
 .step-number {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1.25rem;
-    font-size: 1.25rem;
+    margin: 0 auto 1rem;
+    font-size: 1.125rem;
     font-weight: 800;
     color: white;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background: var(--gray-800);
     border-radius: var(--radius-full);
 }
 
 .step h3 {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
+    font-size: 1.125rem;
 }
 
 .step p {
     color: var(--text-secondary);
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
 }
 
 .step-arrow {
@@ -129,97 +137,86 @@
 
 /* CTA Section */
 .cta-section {
-    padding: var(--space-4xl) 0;
+    padding: var(--space-3xl) 0;
 }
 
 .cta-card {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
-    padding: 3rem;
+    padding: 2.5rem;
     border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, var(--gray-900) 0%, #1e1b4b 100%);
+    background: var(--gray-900);
     color: white;
     overflow: hidden;
     position: relative;
 }
 
-.cta-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
-    pointer-events: none;
-}
-
 .cta-content h2 {
     color: white;
-    font-size: 1.75rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .cta-content p {
     color: var(--gray-400);
-    margin-bottom: 1.5rem;
-    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.9375rem;
 }
 
 .cta-price {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .cta-price .price {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     font-weight: 800;
 }
 
 .cta-price .price-period {
     color: var(--gray-400);
-    font-size: 1rem;
+    font-size: 0.9375rem;
 }
 
 .cta-features {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.875rem;
     justify-content: center;
 }
 
 .cta-feature {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 0.9375rem;
+    gap: 0.625rem;
+    font-size: 0.875rem;
     color: var(--gray-300);
 }
 .cta-feature svg { color: var(--primary-light); flex-shrink: 0; }
 
 /* FAQ */
 .faq-section {
-    padding: var(--space-4xl) 0;
+    padding: var(--space-3xl) 0;
     background: var(--bg-soft);
 }
 
 .faq-list {
-    max-width: 720px;
+    max-width: 680px;
     margin: 0 auto;
 }
 
 .faq-item {
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.625rem;
     background: white;
     overflow: hidden;
-    transition: all var(--transition);
+    transition: border-color var(--transition);
 }
-.faq-item:hover { border-color: var(--primary-100); }
+.faq-item:hover { border-color: var(--gray-300); }
 
 .faq-item summary {
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.25rem;
     font-weight: 600;
     cursor: pointer;
     list-style: none;
@@ -241,17 +238,16 @@
 }
 
 .faq-item p {
-    padding: 0 1.5rem 1.25rem;
+    padding: 0 1.25rem 1rem;
     color: var(--text-secondary);
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     line-height: 1.7;
 }
 
 /* Pricing page */
 .pricing-hero {
-    padding: var(--space-4xl) 0 var(--space-xl);
+    padding: var(--space-3xl) 0 var(--space-xl);
     text-align: center;
-    background: linear-gradient(180deg, var(--primary-50) 0%, var(--bg) 100%);
 }
 
 .pricing-section {
@@ -276,7 +272,7 @@
 }
 .pricing-card:hover {
     box-shadow: var(--shadow-xl);
-    transform: translateY(-4px);
+    transform: translateY(-2px);
 }
 
 .pricing-card-featured {
@@ -294,7 +290,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background: var(--gray-900);
     color: white;
     border-radius: var(--radius-full);
 }
@@ -347,23 +343,17 @@
 
 /* SEO page content */
 .seo-content {
-    padding: var(--space-4xl) 0;
+    padding: var(--space-3xl) 0;
     background: var(--bg-soft);
 }
-.seo-content h2 {
-    margin-bottom: 1rem;
-}
-.seo-content h3 {
-    margin: 2rem 0 0.75rem;
-}
+.seo-content h2 { margin-bottom: 1rem; }
+.seo-content h3 { margin: 2rem 0 0.75rem; }
 .seo-content p {
     color: var(--text-secondary);
     line-height: 1.8;
     margin-bottom: 1rem;
 }
-.seo-content ul {
-    margin-bottom: 1rem;
-}
+.seo-content ul { margin-bottom: 1rem; }
 .seo-content li {
     position: relative;
     padding: 0.375rem 0 0.375rem 1.5rem;
