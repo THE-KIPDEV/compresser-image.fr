@@ -43,29 +43,17 @@
 
         <!-- Options bar -->
         <div class="compress-options" id="compressOptions" style="display:none">
-            <div class="options-row">
-                <div class="option-group">
-                    <label for="qualitySlider">Qualité de compression</label>
-                    <div class="quality-control">
-                        <input type="range" id="qualitySlider" min="10" max="95" value="80" class="range-slider">
-                        <span class="quality-value" id="qualityValue">80%</span>
-                    </div>
-                    <div class="quality-labels">
-                        <span>Plus léger</span>
-                        <span>Plus net</span>
-                    </div>
+            <div class="compression-slider-wrap">
+                <label>Niveau de compression</label>
+                <div class="compression-levels">
+                    <button class="level-btn active" data-level="light" data-quality="90">Léger</button>
+                    <button class="level-btn" data-level="recommended" data-quality="75">Recommandé</button>
+                    <button class="level-btn" data-level="strong" data-quality="50">Fort</button>
+                    <button class="level-btn pro-only" data-level="mega" data-quality="30">
+                        Méga <span class="pro-tag">PRO</span>
+                    </button>
                 </div>
-                <div class="option-group">
-                    <label>Mode</label>
-                    <div class="toggle-group">
-                        <button class="toggle-btn active" data-mode="smart">Intelligent</button>
-                        <button class="toggle-btn" data-mode="max">Maximum</button>
-                        <button class="toggle-btn pro-only" data-mode="mega" title="Méga compression — Pro uniquement">
-                            Méga
-                            <span class="pro-tag">PRO</span>
-                        </button>
-                    </div>
-                </div>
+                <p class="compression-hint" id="compressionHint">Compression légère — Qualité quasi identique, fichier un peu plus léger.</p>
             </div>
             <button class="btn btn-primary btn-lg" id="compressBtn">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 8L10 2L16 8M4 12L10 18L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>

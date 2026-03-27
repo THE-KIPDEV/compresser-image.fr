@@ -9,8 +9,7 @@
     const fileInput = document.getElementById('fileInput');
     const previewGrid = document.getElementById('previewGrid');
     const compressOptions = document.getElementById('compressOptions');
-    const qualitySlider = document.getElementById('qualitySlider');
-    const qualityValue = document.getElementById('qualityValue');
+    const compressionHint = document.getElementById('compressionHint');
     const compressBtn = document.getElementById('compressBtn');
     const resultsContainer = document.getElementById('resultsContainer');
     const resultsSummary = document.getElementById('resultsSummary');
@@ -22,7 +21,15 @@
 
     let selectedFiles = [];
     let compressedFiles = [];
-    let currentMode = 'smart';
+    let currentQuality = 90; // default: light
+    let currentLevel = 'light';
+
+    var hints = {
+        light: 'Compression légère — Qualité quasi identique, fichier un peu plus léger.',
+        recommended: 'Recommandé — Bon équilibre entre qualité et poids. Idéal pour le web.',
+        strong: 'Compression forte — Fichier beaucoup plus léger, légère perte de qualité possible.',
+        mega: 'Méga compression — Réduction maximale via notre serveur. Abonnement Pro requis.',
+    };
 
     // ───── Drop Zone ─────
 
@@ -127,33 +134,22 @@
         });
     }
 
-    // ───── Quality Slider ─────
+    // ───── Compression Levels ─────
 
-    if (qualitySlider) {
-        qualitySlider.addEventListener('input', () => {
-            qualityValue.textContent = qualitySlider.value + '%';
-        });
-    }
+    document.querySelectorAll('.level-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var level = btn.dataset.level;
 
-    // ───── Mode Toggle ─────
-
-    document.querySelectorAll('.toggle-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const mode = btn.dataset.mode;
-
-            if (mode === 'mega' && !btn.classList.contains('pro-only-unlocked')) {
+            if (level === 'mega' && !btn.classList.contains('pro-only-unlocked')) {
                 showNotification('La méga compression est réservée aux abonnés Pro.', 'info');
                 return;
             }
 
-            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.level-btn').forEach(function (b) { b.classList.remove('active'); });
             btn.classList.add('active');
-            currentMode = mode;
-
-            if (mode === 'smart') qualitySlider.value = 80;
-            else if (mode === 'max') qualitySlider.value = 50;
-            else qualitySlider.value = 30;
-            qualityValue.textContent = qualitySlider.value + '%';
+            currentQuality = parseInt(btn.dataset.quality);
+            currentLevel = level;
+            if (compressionHint) compressionHint.textContent = hints[level] || '';
         });
     });
 
@@ -172,7 +168,7 @@
         compressedFiles = [];
         resultsList.innerHTML = '';
 
-        const quality = parseInt(qualitySlider.value) / 100;
+        const quality = currentQuality / 100;
         let totalOriginal = 0;
         let totalCompressed = 0;
 
@@ -190,11 +186,14 @@
         }
 
         // Summary
+        var savedPct = formatPercent(totalOriginal, totalCompressed);
+        var savedColor = totalCompressed < totalOriginal ? 'var(--success)' : 'var(--text-muted)';
+        var savedText = totalCompressed < totalOriginal ? ('-' + savedPct) : 'Déjà optimisé';
         resultsSummary.innerHTML =
             '<div class="summary-stat"><span class="stat-label">Images</span><span class="stat-value">' + compressedFiles.length + '</span></div>' +
             '<div class="summary-stat"><span class="stat-label">Avant</span><span class="stat-value">' + formatSize(totalOriginal) + '</span></div>' +
             '<div class="summary-stat"><span class="stat-label">Après</span><span class="stat-value">' + formatSize(totalCompressed) + '</span></div>' +
-            '<div class="summary-stat"><span class="stat-label">Gagné</span><span class="stat-value" style="color:var(--success)">-' + formatPercent(totalOriginal, totalCompressed) + '</span></div>';
+            '<div class="summary-stat"><span class="stat-label">Gagné</span><span class="stat-value" style="color:' + savedColor + '">' + savedText + '</span></div>';
 
         resultsContainer.style.display = '';
         previewGrid.style.display = 'none';
@@ -220,7 +219,7 @@
                     let width = img.naturalWidth;
                     let height = img.naturalHeight;
 
-                    if (currentMode === 'max' && (width > 2000 || height > 2000)) {
+                    if (currentLevel === 'strong' && (width > 2000 || height > 2000)) {
                         const ratio = Math.min(2000 / width, 2000 / height);
                         width = Math.round(width * ratio);
                         height = Math.round(height * ratio);
@@ -236,53 +235,72 @@
 
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    let outputType = file.type;
-                    let outputQuality = quality;
+                    // Try multiple formats/qualities and pick the smallest that's under original size
+                    var candidates = [];
+                    var pending = 0;
 
-                    if (file.type === 'image/png' && (currentMode !== 'smart' || quality < 0.7)) {
-                        outputType = 'image/webp';
+                    function tryBlob(type, q) {
+                        pending++;
+                        canvas.toBlob(function (blob) {
+                            if (blob) candidates.push({ blob: blob, type: type });
+                            pending--;
+                            if (pending === 0) pickBest();
+                        }, type, q);
                     }
 
-                    canvas.toBlob(
-                        (blob) => {
-                            if (!blob) { reject(new Error('Erreur de compression')); return; }
+                    function pickBest() {
+                        // Sort by size, smallest first
+                        candidates.sort(function (a, b) { return a.blob.size - b.blob.size; });
 
-                            if (blob.size >= file.size && quality > 0.5) {
-                                canvas.toBlob(
-                                    (blob2) => {
-                                        const best = (blob2 && blob2.size < file.size) ? blob2 : blob;
-                                        resolve({
-                                            name: file.name,
-                                            originalSize: file.size,
-                                            blob: best,
-                                            thumbUrl: e.target.result,
-                                            compressedUrl: URL.createObjectURL(best),
-                                            type: outputType,
-                                        });
-                                    },
-                                    outputType,
-                                    Math.max(0.3, quality - 0.2)
-                                );
-                                return;
+                        // Pick smallest that is actually smaller than original
+                        var best = null;
+                        for (var c = 0; c < candidates.length; c++) {
+                            if (candidates[c].blob.size < file.size) {
+                                best = candidates[c];
+                                break;
                             }
+                        }
 
+                        // If nothing is smaller, use original file as-is
+                        if (!best) {
                             resolve({
                                 name: file.name,
                                 originalSize: file.size,
-                                blob: blob,
+                                blob: file,
                                 thumbUrl: e.target.result,
-                                compressedUrl: URL.createObjectURL(blob),
-                                type: outputType,
+                                compressedUrl: URL.createObjectURL(file),
+                                type: file.type,
+                                unchanged: true,
                             });
-                        },
-                        outputType,
-                        outputQuality
-                    );
+                            return;
+                        }
+
+                        resolve({
+                            name: file.name,
+                            originalSize: file.size,
+                            blob: best.blob,
+                            thumbUrl: e.target.result,
+                            compressedUrl: URL.createObjectURL(best.blob),
+                            type: best.type,
+                        });
+                    }
+
+                    // Always try WebP (best compression in browsers)
+                    tryBlob('image/webp', quality);
+                    tryBlob('image/webp', Math.max(0.2, quality - 0.2));
+
+                    // Also try the original format
+                    if (file.type === 'image/jpeg') {
+                        tryBlob('image/jpeg', quality);
+                        tryBlob('image/jpeg', Math.max(0.3, quality - 0.15));
+                    } else if (file.type === 'image/png') {
+                        tryBlob('image/png', undefined);
+                    }
                 };
-                img.onerror = () => reject(new Error('Image invalide'));
+                img.onerror = function () { reject(new Error('Image invalide')); };
                 img.src = e.target.result;
             };
-            reader.onerror = () => reject(new Error('Erreur de lecture'));
+            reader.onerror = function () { reject(new Error('Erreur de lecture')); };
             reader.readAsDataURL(file);
         });
     }
@@ -290,18 +308,34 @@
     // ───── UI ─────
 
     function addResultItem(result, index) {
-        const ext = result.type.split('/')[1] === 'webp' ? '.webp' : '';
-        const downloadName = result.name.replace(/\.[^.]+$/, '') + '-compresse' + (ext || result.name.match(/\.[^.]+$/)?.[0] || '.jpg');
+        var outExt = result.type.split('/')[1];
+        var origExt = result.name.match(/\.([^.]+)$/);
+        var downloadExt = outExt === 'webp' ? '.webp' : (origExt ? origExt[0] : '.jpg');
+        var downloadName = result.name.replace(/\.[^.]+$/, '') + '-compresse' + downloadExt;
 
-        const item = document.createElement('div');
+        var savings = formatPercent(result.originalSize, result.blob.size);
+        var savingsNum = result.originalSize > 0 ? Math.round((1 - result.blob.size / result.originalSize) * 100) : 0;
+
+        var savingsHtml;
+        if (result.unchanged) {
+            savingsHtml = '<span class="result-savings result-savings-neutral">Déjà optimisé</span>';
+        } else {
+            savingsHtml = '<span class="result-savings">-' + savings + '</span>';
+        }
+
+        var sizeText = result.unchanged
+            ? formatSize(result.originalSize)
+            : formatSize(result.originalSize) + ' &rarr; ' + formatSize(result.blob.size);
+
+        var item = document.createElement('div');
         item.className = 'result-item';
         item.innerHTML =
             '<img src="' + result.thumbUrl + '" alt="" class="result-thumb">' +
             '<div class="result-info">' +
                 '<div class="result-name">' + escapeHtml(result.name) + '</div>' +
                 '<div class="result-meta">' +
-                    '<span>' + formatSize(result.originalSize) + ' &rarr; ' + formatSize(result.blob.size) + '</span>' +
-                    '<span class="result-savings">-' + formatPercent(result.originalSize, result.blob.size) + '</span>' +
+                    '<span>' + sizeText + '</span>' +
+                    savingsHtml +
                 '</div>' +
             '</div>' +
             '<div class="result-actions">' +
@@ -311,7 +345,7 @@
                 '</button>' +
             '</div>';
 
-        item.querySelector('.download-btn').addEventListener('click', () => {
+        item.querySelector('.download-btn').addEventListener('click', function () {
             downloadBlob(result.blob, downloadName);
         });
 

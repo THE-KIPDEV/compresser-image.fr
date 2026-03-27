@@ -30,14 +30,15 @@
         <div class="preview-grid" id="previewGrid" style="display:none"></div>
 
         <div class="compress-options" id="compressOptions" style="display:none">
-            <div class="options-row">
-                <div class="option-group">
-                    <label for="qualitySlider">Qualité</label>
-                    <div class="quality-control">
-                        <input type="range" id="qualitySlider" min="10" max="95" value="80" class="range-slider">
-                        <span class="quality-value" id="qualityValue">80%</span>
-                    </div>
+            <div class="compression-slider-wrap">
+                <label>Niveau de compression</label>
+                <div class="compression-levels">
+                    <button class="level-btn active" data-level="light" data-quality="90">Léger</button>
+                    <button class="level-btn" data-level="recommended" data-quality="75">Recommandé</button>
+                    <button class="level-btn" data-level="strong" data-quality="50">Fort</button>
+                    <button class="level-btn pro-only" data-level="mega" data-quality="30">Méga <span class="pro-tag">PRO</span></button>
                 </div>
+                <p class="compression-hint" id="compressionHint">Compression légère — Qualité quasi identique, fichier un peu plus léger.</p>
             </div>
             <button class="btn btn-primary btn-lg" id="compressBtn">Optimiser</button>
         </div>
