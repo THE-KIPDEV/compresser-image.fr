@@ -235,34 +235,29 @@
 
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Try multiple formats/qualities and pick the smallest that's under original size
-                    var candidates = [];
-                    var pending = 0;
+                    // Compress in the same format at the requested quality
+                    // For each level, just do ONE compression at the right quality
+                    var outputType = file.type;
+                    var outputQuality = quality;
 
-                    function tryBlob(type, q) {
-                        pending++;
-                        canvas.toBlob(function (blob) {
-                            if (blob) candidates.push({ blob: blob, type: type });
-                            pending--;
-                            if (pending === 0) pickBest();
-                        }, type, q);
+                    // PNG doesn't support quality param in canvas.toBlob
+                    // so we convert to WebP only for strong/mega levels
+                    if (file.type === 'image/png') {
+                        if (currentLevel === 'strong' || currentLevel === 'mega') {
+                            outputType = 'image/webp';
+                        } else {
+                            // For light/recommended on PNG: try WebP at high quality
+                            // but also keep PNG as fallback
+                            outputType = 'image/webp';
+                            outputQuality = Math.max(quality, 0.85);
+                        }
                     }
 
-                    function pickBest() {
-                        // Sort by size, smallest first
-                        candidates.sort(function (a, b) { return a.blob.size - b.blob.size; });
+                    canvas.toBlob(function (blob) {
+                        if (!blob) { reject(new Error('Erreur de compression')); return; }
 
-                        // Pick smallest that is actually smaller than original
-                        var best = null;
-                        for (var c = 0; c < candidates.length; c++) {
-                            if (candidates[c].blob.size < file.size) {
-                                best = candidates[c];
-                                break;
-                            }
-                        }
-
-                        // If nothing is smaller, use original file as-is
-                        if (!best) {
+                        // If result is bigger than original, return original
+                        if (blob.size >= file.size) {
                             resolve({
                                 name: file.name,
                                 originalSize: file.size,
@@ -278,24 +273,12 @@
                         resolve({
                             name: file.name,
                             originalSize: file.size,
-                            blob: best.blob,
+                            blob: blob,
                             thumbUrl: e.target.result,
-                            compressedUrl: URL.createObjectURL(best.blob),
-                            type: best.type,
+                            compressedUrl: URL.createObjectURL(blob),
+                            type: outputType,
                         });
-                    }
-
-                    // Always try WebP (best compression in browsers)
-                    tryBlob('image/webp', quality);
-                    tryBlob('image/webp', Math.max(0.2, quality - 0.2));
-
-                    // Also try the original format
-                    if (file.type === 'image/jpeg') {
-                        tryBlob('image/jpeg', quality);
-                        tryBlob('image/jpeg', Math.max(0.3, quality - 0.15));
-                    } else if (file.type === 'image/png') {
-                        tryBlob('image/png', undefined);
-                    }
+                    }, outputType, outputQuality);
                 };
                 img.onerror = function () { reject(new Error('Image invalide')); };
                 img.src = e.target.result;

@@ -1,10 +1,6 @@
 -- compresser-image.fr Database Schema
-
-CREATE DATABASE IF NOT EXISTS compresser_image
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE compresser_image;
+-- On Railway, the database is already created as "railway"
+-- Run this directly: mysql -h HOST -P PORT -u root -pPASS railway < schema.sql
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
