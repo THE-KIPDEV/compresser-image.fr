@@ -40,4 +40,8 @@ return [
     '/mentions-legales'         => ['HomeController', 'legal'],
     '/politique-de-confidentialite' => ['HomeController', 'privacy'],
     '/cgu'                      => ['HomeController', 'terms'],
+
+    // Programmatic SEO landing pages — MUST stay last (catch-all single segment).
+    // SeoController::landing() 404s any slug not defined in config/seo-pages.php.
+    '/{slug}'                   => ['SeoController', 'landing'],
 ];

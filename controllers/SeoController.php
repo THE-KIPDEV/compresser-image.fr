@@ -58,6 +58,49 @@ class SeoController
         view('seo/optimiser-web', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs'));
     }
 
+    /** Load the programmatic SEO landing-page definitions. */
+    private function pages(): array
+    {
+        static $pages = null;
+        if ($pages === null) {
+            $pages = require CONFIG_PATH . '/seo-pages.php';
+        }
+        return $pages;
+    }
+
+    /**
+     * Generic, data-driven SEO landing page. One slug = one search query,
+     * all powered by the same compressor (see config/seo-pages.php).
+     */
+    public function landing(string $slug): void
+    {
+        $pages = $this->pages();
+        if (!isset($pages[$slug])) {
+            error404();
+            return;
+        }
+        $page = $pages[$slug];
+
+        // Internal mesh: sibling tools (deterministic, starting after this slug)
+        // plus the format pages, for a stable crawlable link graph.
+        $slugs   = array_keys($pages);
+        $pos     = array_search($slug, $slugs, true);
+        $ordered = array_merge(array_slice($slugs, $pos + 1), array_slice($slugs, 0, $pos));
+        $related = [];
+        foreach (array_slice($ordered, 0, 5) as $s) {
+            $related[] = ['url' => url('/' . $s), 'label' => $pages[$s]['h1']];
+        }
+        $related[] = ['url' => url('/compresser-png'),  'label' => 'Compresser PNG'];
+        $related[] = ['url' => url('/compresser-webp'), 'label' => 'Compresser WebP'];
+
+        $pageTitle       = $page['title'];
+        $pageDescription = $page['description'];
+        $extraCss        = ['home.css', 'compressor.css', 'seo.css'];
+        $extraJs         = ['compressor.js'];
+
+        view('seo/landing', compact('page', 'slug', 'related', 'pageTitle', 'pageDescription', 'extraCss', 'extraJs'));
+    }
+
     /**
      * Dynamic robots.txt (references the sitemap, built from SITE_URL).
      */
@@ -95,6 +138,12 @@ class SeoController
             '/compresser-webp'               => ['monthly', '0.9'],
             '/reduire-taille-image'          => ['monthly', '0.9'],
             '/optimiser-image-web'           => ['monthly', '0.9'],
+        ];
+        // Programmatic SEO landing pages.
+        foreach (array_keys($this->pages()) as $slug) {
+            $urls['/' . $slug] = ['monthly', '0.8'];
+        }
+        $urls += [
             '/mentions-legales'              => ['yearly',  '0.3'],
             '/politique-de-confidentialite'  => ['yearly',  '0.3'],
             '/cgu'                           => ['yearly',  '0.3'],

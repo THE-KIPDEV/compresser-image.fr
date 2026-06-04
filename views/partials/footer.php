@@ -15,12 +15,21 @@
             </div>
 
             <div class="footer-links">
-                <h4>Outils</h4>
+                <h4>Formats</h4>
                 <a href="<?= url('/compresser-png') ?>">Compresser PNG</a>
-                <a href="<?= url('/compresser-jpeg') ?>">Compresser JPEG</a>
+                <a href="<?= url('/compresser-jpg') ?>">Compresser JPG</a>
                 <a href="<?= url('/compresser-webp') ?>">Compresser WebP</a>
-                <a href="<?= url('/reduire-taille-image') ?>">Réduire taille image</a>
-                <a href="<?= url('/optimiser-image-web') ?>">Optimiser pour le web</a>
+                <a href="<?= url('/compresser-une-image') ?>">Compresser une image</a>
+                <a href="<?= url('/compresser-photo') ?>">Compresser une photo</a>
+            </div>
+
+            <div class="footer-links">
+                <h4>Cas d'usage</h4>
+                <a href="<?= url('/reduire-poids-image') ?>">Réduire le poids</a>
+                <a href="<?= url('/compresser-plusieurs-images') ?>">Plusieurs images</a>
+                <a href="<?= url('/compresser-image-pour-mail') ?>">Pour un e-mail</a>
+                <a href="<?= url('/compresser-image-pour-wordpress') ?>">Pour WordPress</a>
+                <a href="<?= url('/compresser-image-pour-cv') ?>">Pour un CV</a>
             </div>
 
             <div class="footer-links">
