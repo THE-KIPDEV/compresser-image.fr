@@ -1,7 +1,8 @@
 FROM php:8.3-fpm-alpine
 
-# Install extensions + GD for image compression
-RUN apk add --no-cache nginx curl \
+# Install extensions + GD for image compression.
+# pngquant = real PNG compression (palette quantization), GD only does zlib level.
+RUN apk add --no-cache nginx curl pngquant \
         freetype-dev libjpeg-turbo-dev libpng-dev libwebp-dev icu-dev && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install pdo pdo_mysql opcache gd intl

@@ -111,12 +111,13 @@ class CompressController
                 imagejpeg($image, $outputPath, $quality);
                 break;
             case 'image/png':
-                // PNG quality is 0-9 (0=no compression, 9=max)
-                $pngQuality = (int) (9 - ($quality / 100 * 9));
-                if ($megaCompress) $pngQuality = 9;
+                // GD only controls the zlib level (0-9), which barely shrinks a
+                // truecolor PNG. Write it, then run pngquant (palette quantization)
+                // for real compression — same technique as TinyPNG.
                 imagealphablending($image, false);
                 imagesavealpha($image, true);
-                imagepng($image, $outputPath, $pngQuality);
+                imagepng($image, $outputPath, 9);
+                $this->pngquant($outputPath, $quality, $megaCompress);
                 break;
             case 'image/webp':
                 imagewebp($image, $outputPath, $quality);
@@ -157,6 +158,31 @@ class CompressController
             'reduction'       => formatPercent($originalSize, $compressedSize),
             'download_url'    => url('/api/download/' . $outputName),
         ]);
+    }
+
+    /**
+     * Lossy palette quantization on an existing PNG file, in place.
+     * No-op (keeps the GD output) if pngquant is missing or can't reach the
+     * requested quality — the caller's "never larger" guard still applies.
+     */
+    private function pngquant(string $path, int $quality, bool $mega): void
+    {
+        $max = max(40, min(95, $quality));
+        $min = max(0, $max - 30);
+        if ($mega) { $max = max(35, $max - 20); $min = max(0, $max - 35); }
+
+        $tmp = $path . '.q.png';
+        $cmd = sprintf(
+            'pngquant --quality=%d-%d --speed 1 --strip --force --output %s -- %s 2>/dev/null',
+            $min, $max, escapeshellarg($tmp), escapeshellarg($path)
+        );
+        exec($cmd, $_, $code);
+
+        if ($code === 0 && is_file($tmp) && filesize($tmp) > 0) {
+            rename($tmp, $path);
+        } elseif (is_file($tmp)) {
+            unlink($tmp);
+        }
     }
 
     public function compressBatch(): void
