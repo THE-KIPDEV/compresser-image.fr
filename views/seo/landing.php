@@ -12,7 +12,7 @@
     </div>
 </section>
 
-<?php partial('compressor', ['widgetHint' => $page['widgetHint'] ?? null]); ?>
+<?php partial('compressor', ['widgetHint' => $page['widgetHint'] ?? null, 'widgetConfig' => $page['widget'] ?? []]); ?>
 
 <!-- SEO Content -->
 <section class="seo-content">

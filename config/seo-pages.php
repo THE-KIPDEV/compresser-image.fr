@@ -164,7 +164,7 @@ return [
     ],
 
     'compresser-plusieurs-images' => [
-        'title'       => 'Compresser plusieurs images à la fois — Compression par lot gratuite',
+        'title'       => 'Compresser plusieurs images à la fois — Lot gratuit',
         'description' => 'Compressez plusieurs images en même temps, gratuitement. Importez un lot de fichiers PNG, JPG ou WebP et téléchargez-les tous compressés.',
         'h1'          => 'Compresser plusieurs images à la fois',
         'subtitle'    => 'Importez un lot complet, compressez tout d\'un coup, téléchargez en une fois.',
@@ -274,6 +274,250 @@ return [
             ['En ligne ou logiciel : quelle différence ?', 'Un outil en ligne ne nécessite aucune installation et fonctionne sur tous les appareils. Pour de la simple compression, il remplace avantageusement un logiciel.'],
             ['La réduction est-elle vraiment gratuite ?', 'Oui, sans inscription ni limite d\'usage pour les fichiers standard. Le mode Pro ne sert qu\'aux gros fichiers et à la méga-compression.'],
             ['Mes images restent-elles confidentielles ?', 'Oui : elles sont supprimées automatiquement après la compression et ne sont jamais conservées.'],
+        ],
+    ],
+
+    // ───────── Conversion de format (cluster « convertir X en Y ») ─────────
+
+    'convertir-png-en-jpg' => [
+        'title'       => 'Convertir un PNG en JPG en ligne gratuitement',
+        'description' => 'Convertissez vos images PNG en JPG en ligne, gratuitement et sans inscription. Conversion instantanée dans le navigateur, vos fichiers restent privés.',
+        'h1'          => 'Convertir un PNG en JPG',
+        'subtitle'    => 'Transformez vos PNG en JPG en un clic — plus légers, parfaits pour les photos.',
+        'widget'      => ['mode' => 'convert', 'output' => 'image/jpeg', 'toLabel' => 'JPG'],
+        'intro'       => '<p>Convertir un PNG en JPG est utile pour alléger une image : le JPG est bien plus compact que le PNG sur les photos. C\'est aussi le format attendu par de nombreux formulaires et sites qui n\'acceptent pas le PNG.</p>
+                          <p>Déposez votre PNG, l\'outil le convertit en JPG directement dans votre navigateur. Si l\'image a un fond transparent, il devient blanc (le JPG ne gère pas la transparence).</p>',
+        'how'         => [
+            ['Déposez votre PNG', 'Glissez un ou plusieurs fichiers PNG.'],
+            ['La conversion est automatique', 'Le format de sortie est réglé sur JPG.'],
+            ['Téléchargez le JPG', 'Récupérez vos fichiers convertis, prêts à l\'emploi.'],
+        ],
+        'faq'         => [
+            ['Pourquoi convertir un PNG en JPG ?', 'Le JPG est beaucoup plus léger que le PNG pour les photos, ce qui accélère les sites et facilite l\'envoi par mail. C\'est aussi le format accepté par la plupart des formulaires.'],
+            ['Que devient la transparence du PNG ?', 'Le JPG ne supporte pas la transparence : les zones transparentes sont remplies en blanc lors de la conversion.'],
+            ['La conversion est-elle gratuite ?', 'Oui, gratuite, sans inscription, et vos fichiers ne quittent pas votre appareil.'],
+        ],
+    ],
+
+    'convertir-jpg-en-png' => [
+        'title'       => 'Convertir un JPG en PNG en ligne gratuitement',
+        'description' => 'Convertissez vos images JPG en PNG en ligne, gratuitement et sans inscription. Conversion instantanée dans le navigateur, sans perte de données.',
+        'h1'          => 'Convertir un JPG en PNG',
+        'subtitle'    => 'Passez vos JPG au format PNG, idéal pour l\'édition et les fonds unis.',
+        'widget'      => ['mode' => 'convert', 'output' => 'image/png', 'toLabel' => 'PNG'],
+        'intro'       => '<p>Convertir un JPG en PNG est pratique quand vous avez besoin d\'un format sans compression destructrice — par exemple pour retoucher une image, ajouter de la transparence ensuite, ou répondre à une exigence technique.</p>
+                          <p>Déposez votre JPG, l\'outil le ré-encode en PNG dans votre navigateur. Notez que le PNG d\'une photo est plus lourd que le JPG d\'origine.</p>',
+        'how'         => [
+            ['Importez votre JPG', 'Un ou plusieurs fichiers JPG/JPEG.'],
+            ['Conversion automatique', 'Le format de sortie est réglé sur PNG.'],
+            ['Téléchargez le PNG', 'Récupérez vos fichiers au format PNG.'],
+        ],
+        'faq'         => [
+            ['Le PNG sera-t-il plus net que le JPG ?', 'Non : la conversion ne récupère pas les détails déjà perdus par le JPG. Le PNG conserve l\'image telle quelle, sans nouvelle compression destructrice.'],
+            ['Pourquoi le fichier PNG est-il plus lourd ?', 'Le PNG est sans perte : pour une photo, il occupe plus d\'espace que le JPG. C\'est normal et inhérent au format.'],
+            ['Puis-je ajouter de la transparence après ?', 'Oui, une fois en PNG vous pouvez détourer ou rendre des zones transparentes dans un éditeur d\'images.'],
+        ],
+    ],
+
+    'convertir-png-en-webp' => [
+        'title'       => 'Convertir un PNG en WebP en ligne gratuitement',
+        'description' => 'Convertissez vos PNG en WebP en ligne gratuitement. Le WebP réduit fortement le poids tout en gardant la transparence. Idéal pour accélérer un site.',
+        'h1'          => 'Convertir un PNG en WebP',
+        'subtitle'    => 'Le format le plus léger pour le web, transparence conservée.',
+        'widget'      => ['mode' => 'convert', 'output' => 'image/webp', 'toLabel' => 'WebP'],
+        'intro'       => '<p>Le WebP offre une bien meilleure compression que le PNG tout en conservant la transparence. Convertir vos PNG en WebP est l\'une des optimisations les plus efficaces pour accélérer un site web et améliorer son score PageSpeed.</p>
+                          <p>Déposez vos PNG, l\'outil les convertit en WebP directement dans le navigateur, sans perte visible.</p>',
+        'how'         => [
+            ['Déposez vos PNG', 'Un fichier ou un lot complet.'],
+            ['Conversion en WebP', 'Le format de sortie est réglé sur WebP.'],
+            ['Téléchargez', 'Récupérez vos WebP allégés pour le web.'],
+        ],
+        'faq'         => [
+            ['Le WebP garde-t-il la transparence ?', 'Oui, contrairement au JPG, le WebP conserve la transparence du PNG tout en étant beaucoup plus léger.'],
+            ['De combien le poids baisse-t-il ?', 'Souvent de 70 à 90 % par rapport au PNG d\'origine, sans différence visible à l\'écran.'],
+            ['Le WebP est-il compatible partout ?', 'Tous les navigateurs modernes et WordPress (depuis la 5.8) acceptent le WebP. C\'est aujourd\'hui un format standard du web.'],
+        ],
+    ],
+
+    'convertir-jpg-en-webp' => [
+        'title'       => 'Convertir un JPG en WebP en ligne gratuitement',
+        'description' => 'Convertissez vos JPG en WebP en ligne gratuitement. Le WebP est plus léger que le JPG à qualité égale : idéal pour accélérer votre site web.',
+        'h1'          => 'Convertir un JPG en WebP',
+        'subtitle'    => 'Des photos plus légères qu\'en JPG, sans perte de qualité visible.',
+        'widget'      => ['mode' => 'convert', 'output' => 'image/webp', 'toLabel' => 'WebP'],
+        'intro'       => '<p>À qualité égale, le WebP est plus léger que le JPG. Convertir vos photos JPG en WebP réduit le poids de vos pages et améliore les performances, sans dégradation visible.</p>
+                          <p>Déposez vos JPG, l\'outil les convertit en WebP dans le navigateur. C\'est le format recommandé par Google pour les images du web.</p>',
+        'how'         => [
+            ['Importez vos JPG', 'Un ou plusieurs fichiers JPG/JPEG.'],
+            ['Conversion en WebP', 'Le format de sortie est réglé sur WebP.'],
+            ['Téléchargez', 'Récupérez vos WebP prêts pour le web.'],
+        ],
+        'faq'         => [
+            ['Le WebP est-il vraiment plus léger que le JPG ?', 'Oui, généralement de 25 à 35 % à qualité équivalente, ce qui réduit d\'autant le temps de chargement de vos pages.'],
+            ['Y a-t-il une perte de qualité ?', 'À qualité comparable, la différence est invisible à l\'œil. Le WebP gère très bien les photos.'],
+            ['Google recommande-t-il le WebP ?', 'Oui, PageSpeed Insights conseille explicitement le WebP (et l\'AVIF) pour servir des images plus légères.'],
+        ],
+    ],
+
+    'convertir-webp-en-jpg' => [
+        'title'       => 'Convertir un WebP en JPG en ligne gratuitement',
+        'description' => 'Convertissez vos images WebP en JPG en ligne gratuitement. Pratique pour ouvrir un WebP dans un logiciel ou un site qui n\'accepte que le JPG.',
+        'h1'          => 'Convertir un WebP en JPG',
+        'subtitle'    => 'Rendez vos WebP compatibles partout en les convertissant en JPG.',
+        'widget'      => ['mode' => 'convert', 'output' => 'image/jpeg', 'toLabel' => 'JPG'],
+        'intro'       => '<p>Certains logiciels, imprimeurs ou formulaires n\'acceptent pas encore le WebP. Convertir un WebP en JPG les rend immédiatement compatibles, tout en restant légers.</p>
+                          <p>Déposez votre WebP, l\'outil le convertit en JPG dans le navigateur. Les éventuelles zones transparentes deviennent blanches.</p>',
+        'how'         => [
+            ['Déposez votre WebP', 'Un ou plusieurs fichiers WebP.'],
+            ['Conversion en JPG', 'Le format de sortie est réglé sur JPG.'],
+            ['Téléchargez le JPG', 'Un fichier compatible avec tous les outils.'],
+        ],
+        'faq'         => [
+            ['Pourquoi convertir un WebP en JPG ?', 'Pour ouvrir ou envoyer l\'image dans un outil qui ne reconnaît pas le WebP : vieux logiciels, certaines plateformes ou services d\'impression.'],
+            ['Vais-je perdre en qualité ?', 'La conversion ré-encode l\'image ; au niveau de qualité standard, la différence reste imperceptible.'],
+            ['La transparence est-elle conservée ?', 'Non, le JPG ne gère pas la transparence : les zones transparentes deviennent blanches.'],
+        ],
+    ],
+
+    'convertir-webp-en-png' => [
+        'title'       => 'Convertir un WebP en PNG en ligne gratuitement',
+        'description' => 'Convertissez vos images WebP en PNG en ligne gratuitement. Conservez la transparence et rendez vos fichiers compatibles avec tous les logiciels.',
+        'h1'          => 'Convertir un WebP en PNG',
+        'subtitle'    => 'Récupérez un PNG compatible partout, avec transparence préservée.',
+        'widget'      => ['mode' => 'convert', 'output' => 'image/png', 'toLabel' => 'PNG'],
+        'intro'       => '<p>Convertir un WebP en PNG permet d\'ouvrir l\'image dans n\'importe quel logiciel et de conserver la transparence, là où le WebP n\'est pas pris en charge.</p>
+                          <p>Déposez votre WebP, l\'outil le convertit en PNG dans le navigateur, sans perte.</p>',
+        'how'         => [
+            ['Importez votre WebP', 'Un ou plusieurs fichiers WebP.'],
+            ['Conversion en PNG', 'Le format de sortie est réglé sur PNG.'],
+            ['Téléchargez le PNG', 'Compatible avec tous les éditeurs d\'images.'],
+        ],
+        'faq'         => [
+            ['La transparence est-elle conservée ?', 'Oui, le PNG gère la transparence : les zones transparentes du WebP sont préservées.'],
+            ['Le PNG sera-t-il plus lourd ?', 'Souvent oui, car le PNG est sans perte. C\'est le compromis pour une compatibilité maximale et la transparence.'],
+            ['Est-ce gratuit et privé ?', 'Oui : la conversion est gratuite et se fait dans votre navigateur, vos fichiers ne sont pas envoyés sur un serveur.'],
+        ],
+    ],
+
+    'convertir-image-en-webp' => [
+        'title'       => 'Convertir une image en WebP en ligne gratuitement',
+        'description' => 'Convertissez n\'importe quelle image (JPG, PNG) en WebP en ligne gratuitement. Réduisez le poids de vos visuels pour un site plus rapide.',
+        'h1'          => 'Convertir une image en WebP',
+        'subtitle'    => 'JPG ou PNG vers WebP : le format le plus léger pour le web.',
+        'widget'      => ['mode' => 'convert', 'output' => 'image/webp', 'toLabel' => 'WebP'],
+        'intro'       => '<p>Le WebP combine les avantages du JPG (légèreté des photos) et du PNG (transparence) avec une compression supérieure. Convertir vos images en WebP est l\'un des meilleurs moyens d\'accélérer un site.</p>
+                          <p>Déposez vos JPG ou PNG, l\'outil les convertit tous en WebP dans le navigateur.</p>',
+        'how'         => [
+            ['Déposez vos images', 'JPG ou PNG, une ou plusieurs.'],
+            ['Conversion en WebP', 'Le format de sortie est réglé sur WebP.'],
+            ['Téléchargez', 'Récupérez vos WebP optimisés pour le web.'],
+        ],
+        'faq'         => [
+            ['Quels formats puis-je convertir en WebP ?', 'Les JPG et les PNG. Chacun est ré-encodé en WebP, plus léger, directement dans votre navigateur.'],
+            ['Le WebP dégrade-t-il l\'image ?', 'Non de façon visible : à qualité standard, le rendu est identique pour un poids nettement inférieur.'],
+            ['Pourquoi passer au WebP ?', 'Pour des pages plus rapides, un meilleur score PageSpeed et un meilleur référencement, sans changer l\'apparence de vos images.'],
+        ],
+    ],
+
+    // ───────── Compression à taille cible (cluster « image en X Ko/Mo ») ─────────
+
+    'reduire-image-en-ko' => [
+        'title'       => 'Réduire une image en Ko — Compression à la taille voulue',
+        'description' => 'Réduisez une image au poids exact souhaité en Ko. Indiquez la taille cible, l\'outil ajuste automatiquement la qualité. Gratuit et en ligne.',
+        'h1'          => 'Réduire une image en Ko',
+        'subtitle'    => 'Indiquez le poids voulu, l\'outil ajuste la qualité pour l\'atteindre.',
+        'widget'      => ['mode' => 'target', 'default' => 100, 'unit' => 'kb'],
+        'intro'       => '<p>Beaucoup de formulaires en ligne imposent un poids maximal précis (par exemple 100 Ko ou 200 Ko). Plutôt que de tâtonner avec des niveaux de compression, indiquez directement la taille cible en Ko : l\'outil cherche automatiquement la meilleure qualité qui tient sous ce poids.</p>
+                          <p>Tout se passe dans le navigateur. Vous obtenez une image qui respecte la limite, sans essais successifs.</p>',
+        'how'         => [
+            ['Déposez votre image', 'PNG, JPG ou WebP.'],
+            ['Indiquez la taille en Ko', 'Par exemple 100 ou 200 Ko.'],
+            ['Téléchargez', 'L\'outil ajuste la qualité pour rester sous la limite.'],
+        ],
+        'faq'         => [
+            ['Comment l\'outil atteint-il le poids exact ?', 'Il teste plusieurs niveaux de qualité et retient le plus élevé qui reste sous votre cible. La taille finale est donc inférieure ou égale au poids demandé.'],
+            ['Et si la cible est trop basse ?', 'Si même la qualité minimale dépasse la cible (image très grande), l\'outil fournit la version la plus légère possible. Réduisez d\'abord les dimensions si besoin.'],
+            ['Quels formats sont supportés ?', 'JPG et WebP se prêtent le mieux au poids cible. Un PNG est automatiquement encodé en WebP pour pouvoir viser une taille précise.'],
+        ],
+    ],
+
+    'compresser-image-en-mo' => [
+        'title'       => 'Compresser une image en Mo — Atteindre un poids précis',
+        'description' => 'Compressez une image jusqu\'à un poids en Mo défini. Indiquez la taille cible, l\'outil ajuste la qualité automatiquement. Gratuit, en ligne.',
+        'h1'          => 'Compresser une image en Mo',
+        'subtitle'    => 'Fixez un poids en Mo, l\'outil s\'occupe du réglage de qualité.',
+        'widget'      => ['mode' => 'target', 'default' => 1, 'unit' => 'mb'],
+        'intro'       => '<p>Pour respecter une limite exprimée en Mo (souvent 1, 2 ou 5 Mo), indiquez directement le poids cible : l\'outil ajuste la qualité pour que l\'image passe sous ce seuil, sans manipulation manuelle.</p>
+                          <p>Idéal pour les pièces jointes, les dépôts de dossiers ou les plateformes qui plafonnent la taille des fichiers.</p>',
+        'how'         => [
+            ['Importez l\'image', 'PNG, JPG ou WebP.'],
+            ['Choisissez le poids en Mo', '1, 2 ou 5 Mo selon la limite à respecter.'],
+            ['Téléchargez', 'Votre image tient sous le poids demandé.'],
+        ],
+        'faq'         => [
+            ['Puis-je viser exactement 2 Mo ?', 'Oui, saisissez 2 Mo : l\'outil produit une image dont le poids reste inférieur ou égal à cette valeur.'],
+            ['Ko ou Mo, comment choisir ?', 'Utilisez les Mo pour les fichiers volumineux et les Ko pour les petites images. Vous pouvez changer d\'unité à tout moment.'],
+            ['La qualité reste-t-elle correcte ?', 'L\'outil garde toujours la meilleure qualité possible compatible avec le poids cible.'],
+        ],
+    ],
+
+    'compresser-image-100-ko' => [
+        'title'       => 'Compresser une image en 100 Ko — Outil gratuit en ligne',
+        'description' => 'Compressez une image à 100 Ko maximum en ligne gratuitement. L\'outil ajuste automatiquement la qualité pour respecter cette taille précise.',
+        'h1'          => 'Compresser une image en 100 Ko',
+        'subtitle'    => 'Atteignez la limite des 100 Ko sans tâtonner.',
+        'widget'      => ['mode' => 'target', 'default' => 100, 'unit' => 'kb'],
+        'intro'       => '<p>La limite de 100 Ko revient souvent sur les formulaires administratifs et les sites d\'inscription. Indiquez 100 Ko comme cible : l\'outil ajuste la qualité pour que votre image passe sous ce poids du premier coup.</p>
+                          <p>Vous pouvez modifier la valeur si votre limite est différente (50, 200 Ko…).</p>',
+        'how'         => [
+            ['Déposez l\'image', 'PNG, JPG ou WebP.'],
+            ['Cible : 100 Ko', 'Déjà pré-réglée, modifiable si besoin.'],
+            ['Téléchargez', 'Une image conforme à la limite des 100 Ko.'],
+        ],
+        'faq'         => [
+            ['L\'image fera-t-elle pile 100 Ko ?', 'Elle pèsera 100 Ko ou un peu moins : l\'outil retient la meilleure qualité qui reste sous la limite.'],
+            ['Et pour une autre limite ?', 'Changez simplement la valeur (par exemple 50 ou 200 Ko) : le principe reste le même.'],
+            ['Est-ce adapté aux photos d\'identité ?', 'Oui, c\'est un usage fréquent pour les démarches en ligne qui imposent un poids maximal.'],
+        ],
+    ],
+
+    'compresser-image-20-ko' => [
+        'title'       => 'Compresser une image en 20 Ko — Outil gratuit en ligne',
+        'description' => 'Compressez une image à 20 Ko maximum en ligne gratuitement. Idéal pour les formulaires très restrictifs. La qualité s\'ajuste automatiquement.',
+        'h1'          => 'Compresser une image en 20 Ko',
+        'subtitle'    => 'Pour les formulaires les plus stricts, descendez jusqu\'à 20 Ko.',
+        'widget'      => ['mode' => 'target', 'default' => 20, 'unit' => 'kb'],
+        'intro'       => '<p>Certaines plateformes très restrictives n\'acceptent que des images de 20 Ko, voire moins. Indiquez 20 Ko comme cible : l\'outil pousse la compression au niveau nécessaire pour respecter cette limite.</p>
+                          <p>Pour une cible aussi basse, mieux vaut partir d\'une image déjà réduite en dimensions.</p>',
+        'how'         => [
+            ['Déposez une petite image', 'Idéalement déjà redimensionnée.'],
+            ['Cible : 20 Ko', 'Pré-réglée, modifiable selon votre limite.'],
+            ['Téléchargez', 'Une image conforme à la limite des 20 Ko.'],
+        ],
+        'faq'         => [
+            ['20 Ko est-il toujours atteignable ?', 'Pour une grande photo, pas toujours sans réduire d\'abord les dimensions. L\'outil fournit alors la version la plus légère possible.'],
+            ['Comment maximiser mes chances ?', 'Réduisez la taille en pixels de l\'image avant la compression : moins de pixels, plus facile d\'atteindre un poids très bas.'],
+            ['La qualité sera-t-elle suffisante ?', 'À 20 Ko, la qualité dépend des dimensions. Pour une vignette ou une petite photo, le rendu reste tout à fait correct.'],
+        ],
+    ],
+
+    'compresser-image-1-mo' => [
+        'title'       => 'Compresser une image en 1 Mo — Outil gratuit en ligne',
+        'description' => 'Compressez une image à 1 Mo maximum en ligne gratuitement. L\'outil ajuste la qualité pour respecter cette taille tout en restant net.',
+        'h1'          => 'Compresser une image en 1 Mo',
+        'subtitle'    => 'Passez sous la barre des 1 Mo en gardant une belle qualité.',
+        'widget'      => ['mode' => 'target', 'default' => 1, 'unit' => 'mb'],
+        'intro'       => '<p>La limite de 1 Mo est l\'une des plus courantes pour les pièces jointes et les dépôts en ligne. Indiquez 1 Mo comme cible : l\'outil ajuste la qualité pour que votre image passe sous ce seuil tout en restant nette.</p>
+                          <p>À ce poids, la qualité reste généralement excellente, même pour une photo en pleine définition.</p>',
+        'how'         => [
+            ['Importez votre image', 'PNG, JPG ou WebP.'],
+            ['Cible : 1 Mo', 'Pré-réglée, modifiable si nécessaire.'],
+            ['Téléchargez', 'Une image nette, sous la barre des 1 Mo.'],
+        ],
+        'faq'         => [
+            ['1 Mo, est-ce suffisant pour une belle photo ?', 'Oui, largement : à 1 Mo une photo reste très détaillée. C\'est un excellent compromis poids/qualité.'],
+            ['L\'image dépassera-t-elle 1 Mo ?', 'Non : l\'outil garantit un poids inférieur ou égal à la cible que vous indiquez.'],
+            ['Puis-je viser 2 ou 5 Mo à la place ?', 'Oui, changez la valeur ou l\'unité selon la limite à respecter.'],
         ],
     ],
 

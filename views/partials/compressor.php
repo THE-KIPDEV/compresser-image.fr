@@ -1,10 +1,17 @@
 <?php
 /**
  * Reusable compressor widget (drop zone + options + results).
- * Optional $widgetHint overrides the default file-type hint line.
+ * $widgetHint   — overrides the default file-type hint line.
+ * $widgetConfig — per-page behaviour: ['mode'=>'convert','output'=>'image/jpeg','toLabel'=>'JPG']
+ *                 or ['mode'=>'target','default'=>100,'unit'=>'kb']. Default = plain compress.
  */
-$widgetHint = $widgetHint ?? 'PNG, JPEG, WebP — Max 10 Mo par image (50 Mo en Pro)';
+$widgetHint   = $widgetHint ?? 'PNG, JPEG, WebP — Max 10 Mo par image (50 Mo en Pro)';
+$widgetConfig = $widgetConfig ?? [];
+$widgetMode   = $widgetConfig['mode'] ?? 'compress';
 ?>
+<?php if (!empty($widgetConfig)): ?>
+<script>window.COMPRESSOR_CONFIG = <?= json_encode($widgetConfig, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
+<?php endif; ?>
 <section class="compressor-section" id="compressor">
     <div class="container">
         <div class="drop-zone" id="dropZone">
@@ -30,17 +37,33 @@ $widgetHint = $widgetHint ?? 'PNG, JPEG, WebP — Max 10 Mo par image (50 Mo en 
         <div class="preview-grid" id="previewGrid" style="display:none"></div>
 
         <div class="compress-options" id="compressOptions" style="display:none">
-            <div class="compression-slider-wrap">
-                <label>Niveau de compression</label>
-                <div class="compression-levels">
-                    <button class="level-btn active" data-level="light" data-quality="90">Léger</button>
-                    <button class="level-btn" data-level="recommended" data-quality="75">Recommandé</button>
-                    <button class="level-btn" data-level="strong" data-quality="50">Fort</button>
-                    <button class="level-btn pro-only" data-level="mega" data-quality="30">Méga <span class="pro-tag">PRO</span></button>
+            <?php if ($widgetMode === 'target'): ?>
+                <div class="target-size-wrap">
+                    <label for="targetSizeInput">Poids maximal souhaité</label>
+                    <div class="target-input-row">
+                        <input type="number" id="targetSizeInput" min="1" step="1" value="<?= (int)($widgetConfig['default'] ?? 100) ?>">
+                        <select id="targetSizeUnit">
+                            <option value="kb"<?= (($widgetConfig['unit'] ?? 'kb') === 'kb') ? ' selected' : '' ?>>Ko</option>
+                            <option value="mb"<?= (($widgetConfig['unit'] ?? 'kb') === 'mb') ? ' selected' : '' ?>>Mo</option>
+                        </select>
+                    </div>
+                    <p class="compression-hint">La qualité est ajustée automatiquement pour atteindre ce poids.</p>
                 </div>
-                <p class="compression-hint" id="compressionHint">Compression légère — Qualité quasi identique, fichier un peu plus léger.</p>
-            </div>
-            <button class="btn btn-primary btn-lg" id="compressBtn">Compresser</button>
+            <?php elseif ($widgetMode === 'convert'): ?>
+                <p class="convert-note">Format de sortie : <strong><?= e($widgetConfig['toLabel'] ?? 'WebP') ?></strong> — vos images seront converties automatiquement.</p>
+            <?php else: ?>
+                <div class="compression-slider-wrap">
+                    <label>Niveau de compression</label>
+                    <div class="compression-levels">
+                        <button class="level-btn active" data-level="light" data-quality="90">Léger</button>
+                        <button class="level-btn" data-level="recommended" data-quality="75">Recommandé</button>
+                        <button class="level-btn" data-level="strong" data-quality="50">Fort</button>
+                        <button class="level-btn pro-only" data-level="mega" data-quality="30">Méga <span class="pro-tag">PRO</span></button>
+                    </div>
+                    <p class="compression-hint" id="compressionHint">Compression légère — Qualité quasi identique, fichier un peu plus léger.</p>
+                </div>
+            <?php endif; ?>
+            <button class="btn btn-primary btn-lg" id="compressBtn"><?= $widgetMode === 'convert' ? 'Convertir' : 'Compresser' ?></button>
         </div>
 
         <div class="results-container" id="resultsContainer" style="display:none">

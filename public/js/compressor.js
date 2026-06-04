@@ -24,6 +24,13 @@
     let currentQuality = 90; // default: light
     let currentLevel = 'light';
 
+    // Per-page widget config (set inline by SEO landing pages).
+    // mode: 'compress' (default) | 'convert' | 'target'
+    var CONFIG = window.COMPRESSOR_CONFIG || {};
+    var MODE = CONFIG.mode || 'compress';
+    var FORCE_OUTPUT = CONFIG.output || null; // e.g. 'image/jpeg' for conversion pages
+    var targetInput = document.getElementById('targetSizeInput');
+
     var hints = {
         light: 'Compression légère — Qualité quasi identique, fichier un peu plus léger.',
         recommended: 'Recommandé — Bon équilibre entre qualité et poids. Idéal pour le web.',
@@ -207,12 +214,44 @@
 
     // ───── Client-side compression via Canvas ─────
 
+    function canvasEncode(canvas, type, q) {
+        return new Promise(function (resolve) {
+            canvas.toBlob(function (b) { resolve(b); }, type, q);
+        });
+    }
+
+    function targetBytes() {
+        if (!targetInput) return 0;
+        var v = parseFloat(targetInput.value);
+        if (!v || v <= 0) return 0;
+        var unit = document.getElementById('targetSizeUnit');
+        var mult = (unit && unit.value === 'mb') ? 1048576 : 1024;
+        return Math.round(v * mult);
+    }
+
+    // Binary-search the quality to fit the encoded image under the target size.
+    async function encodeToTarget(canvas, type) {
+        if (type === 'image/png') type = 'image/webp'; // PNG has no quality knob
+        var target = targetBytes();
+        if (!target) return canvasEncode(canvas, type, 0.8);
+
+        var lo = 0.05, hi = 0.95, best = null;
+        for (var i = 0; i < 8; i++) {
+            var mid = (lo + hi) / 2;
+            var b = await canvasEncode(canvas, type, mid);
+            if (!b) break;
+            if (b.size <= target) { best = b; lo = mid; } else { hi = mid; }
+        }
+        if (!best) best = await canvasEncode(canvas, type, 0.05); // can't reach target → smallest
+        return best;
+    }
+
     function compressImage(file, quality) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
-                img.onload = () => {
+                img.onload = async () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
@@ -224,61 +263,51 @@
                         width = Math.round(width * ratio);
                         height = Math.round(height * ratio);
                     }
-
                     canvas.width = width;
                     canvas.height = height;
 
-                    if (file.type === 'image/jpeg') {
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(0, 0, width, height);
-                    }
-
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // Compress in the same format at the requested quality
-                    // For each level, just do ONE compression at the right quality
+                    // Decide output format
                     var outputType = file.type;
                     var outputQuality = quality;
-
-                    // PNG doesn't support quality param in canvas.toBlob
-                    // so we convert to WebP only for strong/mega levels
-                    if (file.type === 'image/png') {
-                        if (currentLevel === 'strong' || currentLevel === 'mega') {
-                            outputType = 'image/webp';
-                        } else {
-                            // For light/recommended on PNG: try WebP at high quality
-                            // but also keep PNG as fallback
-                            outputType = 'image/webp';
+                    if (FORCE_OUTPUT) {
+                        outputType = FORCE_OUTPUT; // conversion pages
+                    } else if (file.type === 'image/png') {
+                        // Canvas can't set PNG quality, so PNG is compressed as WebP
+                        outputType = 'image/webp';
+                        if (currentLevel !== 'strong' && currentLevel !== 'mega') {
                             outputQuality = Math.max(quality, 0.85);
                         }
                     }
 
-                    canvas.toBlob(function (blob) {
+                    // Flatten transparency onto white when the output is JPEG
+                    if (outputType === 'image/jpeg') {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                    }
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    try {
+                        var blob = (MODE === 'target')
+                            ? await encodeToTarget(canvas, outputType)
+                            : await canvasEncode(canvas, outputType, outputQuality);
                         if (!blob) { reject(new Error('Erreur de compression')); return; }
 
-                        // If result is bigger than original, return original
-                        if (blob.size >= file.size) {
+                        // Plain compression must never return a bigger file.
+                        // (Conversion/target modes always return the produced file.)
+                        if (MODE === 'compress' && !FORCE_OUTPUT && blob.size >= file.size) {
                             resolve({
-                                name: file.name,
-                                originalSize: file.size,
-                                blob: file,
-                                thumbUrl: e.target.result,
-                                compressedUrl: URL.createObjectURL(file),
-                                type: file.type,
-                                unchanged: true,
+                                name: file.name, originalSize: file.size, blob: file,
+                                thumbUrl: e.target.result, compressedUrl: URL.createObjectURL(file),
+                                type: file.type, unchanged: true,
                             });
                             return;
                         }
-
                         resolve({
-                            name: file.name,
-                            originalSize: file.size,
-                            blob: blob,
-                            thumbUrl: e.target.result,
-                            compressedUrl: URL.createObjectURL(blob),
+                            name: file.name, originalSize: file.size, blob: blob,
+                            thumbUrl: e.target.result, compressedUrl: URL.createObjectURL(blob),
                             type: outputType,
                         });
-                    }, outputType, outputQuality);
+                    } catch (err) { reject(err); }
                 };
                 img.onerror = function () { reject(new Error('Image invalide')); };
                 img.src = e.target.result;
@@ -290,10 +319,10 @@
 
     // ───── UI ─────
 
+    var EXT_BY_TYPE = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+
     function addResultItem(result, index) {
-        var outExt = result.type.split('/')[1];
-        var origExt = result.name.match(/\.([^.]+)$/);
-        var downloadExt = outExt === 'webp' ? '.webp' : (origExt ? origExt[0] : '.jpg');
+        var downloadExt = EXT_BY_TYPE[result.type] || '.jpg';
         var downloadName = result.name.replace(/\.[^.]+$/, '') + '-compresse' + downloadExt;
 
         var savings = formatPercent(result.originalSize, result.blob.size);
@@ -362,8 +391,7 @@
     if (downloadAllBtn) {
         downloadAllBtn.addEventListener('click', () => {
             compressedFiles.forEach((result) => {
-                const ext = result.type.split('/')[1] === 'webp' ? '.webp' : '';
-                const downloadName = result.name.replace(/\.[^.]+$/, '') + '-compresse' + (ext || result.name.match(/\.[^.]+$/)?.[0] || '.jpg');
+                const downloadName = result.name.replace(/\.[^.]+$/, '') + '-compresse' + (EXT_BY_TYPE[result.type] || '.jpg');
                 downloadBlob(result.blob, downloadName);
             });
         });
