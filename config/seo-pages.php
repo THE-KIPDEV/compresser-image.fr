@@ -521,4 +521,186 @@ return [
         ],
     ],
 
+    // ───────── Redimensionnement par dimensions (cluster « redimensionner ») ─────────
+
+    'redimensionner-image' => [
+        'title'       => 'Redimensionner une image en ligne gratuitement — En pixels',
+        'description' => 'Redimensionnez une image en ligne gratuitement. Changez la largeur et la hauteur en pixels en gardant les proportions. Sans logiciel ni inscription.',
+        'h1'          => 'Redimensionner une image',
+        'subtitle'    => 'Changez les dimensions en pixels en conservant les proportions.',
+        'widget'      => ['mode' => 'resize', 'width' => 1080],
+        'intro'       => '<p>Redimensionner une image, c\'est modifier ses dimensions en pixels (largeur × hauteur). C\'est utile pour adapter une photo à un format précis : bannière, vignette, réseau social ou simplement pour réduire une image trop grande.</p>
+                          <p>Indiquez la nouvelle largeur (ou hauteur), l\'outil calcule l\'autre dimension automatiquement pour ne pas déformer l\'image. Tout se passe dans votre navigateur.</p>',
+        'how'         => [
+            ['Déposez votre image', 'PNG, JPG ou WebP.'],
+            ['Saisissez les dimensions', 'Une largeur en pixels suffit : la hauteur suit les proportions.'],
+            ['Téléchargez', 'Récupérez votre image à la bonne taille.'],
+        ],
+        'faq'         => [
+            ['Redimensionner déforme-t-il l\'image ?', 'Non, tant que « Conserver les proportions » est coché : l\'outil calcule la seconde dimension pour garder le bon ratio. Décochez-la pour forcer une taille exacte.'],
+            ['Quelle différence avec la compression ?', 'La compression réduit le poids sans changer les dimensions. Le redimensionnement change le nombre de pixels — ce qui réduit aussi le poids, au passage.'],
+            ['Puis-je agrandir une image ?', 'Oui, mais agrandir au-delà de la taille d\'origine fait apparaître du flou : aucun outil ne peut inventer des détails absents.'],
+        ],
+    ],
+
+    'redimensionner-photo' => [
+        'title'       => 'Redimensionner une photo en ligne gratuitement — En pixels',
+        'description' => 'Redimensionnez vos photos en ligne gratuitement. Ajustez la largeur et la hauteur en pixels sans déformer, sans logiciel à installer.',
+        'h1'          => 'Redimensionner une photo',
+        'subtitle'    => 'Adaptez vos photos à la taille voulue, sans les déformer.',
+        'widget'      => ['mode' => 'resize', 'width' => 1080],
+        'intro'       => '<p>Vos photos font souvent plusieurs milliers de pixels de large — bien plus que nécessaire pour un site, un profil ou une impression standard. Les redimensionner les rend plus adaptées et plus légères.</p>
+                          <p>Entrez la largeur souhaitée, l\'outil ajuste la hauteur en gardant les proportions pour une photo nette et non déformée.</p>',
+        'how'         => [
+            ['Importez la photo', 'Une photo JPG, PNG ou WebP.'],
+            ['Indiquez la largeur', 'Par exemple 1080 px pour un réseau social.'],
+            ['Enregistrez', 'Téléchargez votre photo redimensionnée.'],
+        ],
+        'faq'         => [
+            ['Quelle taille choisir pour une photo ?', 'Pour le web, 1080 à 1920 px de large suffisent. Pour une vignette, 300 à 600 px. Inutile de dépasser la taille d\'affichage réelle.'],
+            ['La qualité est-elle conservée ?', 'Oui, le redimensionnement utilise un rééchantillonnage de qualité et exporte en haute qualité.'],
+            ['Mes photos sont-elles envoyées sur un serveur ?', 'Non, le redimensionnement se fait dans votre navigateur : vos photos ne quittent pas votre appareil.'],
+        ],
+    ],
+
+    'redimensionner-image-en-pixels' => [
+        'title'       => 'Redimensionner une image en pixels — Largeur et hauteur',
+        'description' => 'Redimensionnez une image à une taille exacte en pixels. Définissez la largeur et la hauteur souhaitées, gratuitement et en ligne.',
+        'h1'          => 'Redimensionner une image en pixels',
+        'subtitle'    => 'Définissez une largeur et une hauteur exactes en pixels.',
+        'widget'      => ['mode' => 'resize', 'width' => 1920],
+        'intro'       => '<p>Besoin d\'une image à une taille précise en pixels — par exemple 1920×1080, 800×600 ou 1200 px de large ? Indiquez directement les dimensions voulues et obtenez le fichier exact.</p>
+                          <p>Avec l\'option « Conserver les proportions », un seul champ suffit ; décochez-la pour imposer une largeur et une hauteur précises.</p>',
+        'how'         => [
+            ['Déposez l\'image', 'PNG, JPG ou WebP.'],
+            ['Entrez largeur et hauteur', 'En pixels, avec ou sans verrouillage des proportions.'],
+            ['Téléchargez', 'Votre image fait exactement la taille demandée.'],
+        ],
+        'faq'         => [
+            ['Comment obtenir une taille exacte (ex. 800×600) ?', 'Décochez « Conserver les proportions » et saisissez 800 en largeur et 600 en hauteur. L\'image sera étirée à ces dimensions précises.'],
+            ['Pourquoi garder les proportions ?', 'Pour éviter de déformer l\'image. Si vous imposez un ratio différent de l\'original sans verrouillage, l\'image apparaît étirée ou compressée.'],
+            ['Quelles dimensions pour un fond d\'écran ?', 'Le Full HD correspond à 1920×1080 px. Pour la plupart des écrans, c\'est une valeur sûre.'],
+        ],
+    ],
+
+    'changer-taille-image' => [
+        'title'       => 'Changer la taille d\'une image en ligne — Pixels, gratuit',
+        'description' => 'Changez la taille d\'une image en ligne gratuitement. Modifiez ses dimensions en pixels en quelques secondes, sans logiciel ni inscription.',
+        'h1'          => 'Changer la taille d\'une image',
+        'subtitle'    => 'Modifiez les dimensions de votre image en quelques secondes.',
+        'widget'      => ['mode' => 'resize', 'width' => 1080],
+        'intro'       => '<p>« Changer la taille » d\'une image peut vouloir dire deux choses : modifier ses dimensions en pixels, ou réduire son poids. Cet outil change les dimensions ; pour le poids, voyez nos outils de compression.</p>
+                          <p>Indiquez la nouvelle largeur, l\'outil ajuste la hauteur automatiquement. Simple, rapide et gratuit.</p>',
+        'how'         => [
+            ['Ajoutez votre image', 'PNG, JPG ou WebP.'],
+            ['Choisissez la nouvelle largeur', 'La hauteur suit pour garder les proportions.'],
+            ['Téléchargez', 'Votre image à la nouvelle taille.'],
+        ],
+        'faq'         => [
+            ['Changer la taille réduit-il aussi le poids ?', 'Oui : moins de pixels signifie un fichier plus léger. Réduire les dimensions est même l\'un des moyens les plus efficaces d\'alléger une image.'],
+            ['Dimensions ou poids, que choisir ?', 'Pour adapter une image à un emplacement précis, changez les dimensions. Pour respecter une limite de fichier, utilisez la compression ou la taille cible en Ko/Mo.'],
+            ['Est-ce gratuit ?', 'Oui, sans inscription et directement dans votre navigateur.'],
+        ],
+    ],
+
+    // ───────── Cas d\'usage à fort volume (réseaux, démarches) ─────────
+
+    'compresser-image-pour-leboncoin' => [
+        'title'       => 'Compresser une image pour Leboncoin — Annonces plus rapides',
+        'description' => 'Compressez vos photos pour vos annonces Leboncoin. Réduisez le poids de vos images pour un upload rapide, sans dépasser les limites du site.',
+        'h1'          => 'Compresser une image pour Leboncoin',
+        'subtitle'    => 'Des photos d\'annonce légères qui se chargent vite, sans rejet.',
+        'intro'       => '<p>Sur Leboncoin, des photos trop lourdes ralentissent la mise en ligne de votre annonce, surtout depuis un mobile en 4G. Les compresser avant l\'envoi rend l\'upload bien plus fluide et évite les échecs de chargement.</p>
+                          <p>Compressez vos photos ici, puis ajoutez-les à votre annonce : elles restent nettes et attractives tout en pesant beaucoup moins.</p>',
+        'how'         => [
+            ['Déposez vos photos d\'annonce', 'Plusieurs à la fois si besoin.'],
+            ['Compressez', 'Le niveau Recommandé garde de belles photos.'],
+            ['Ajoutez-les à l\'annonce', 'Téléchargez puis publiez sur Leboncoin.'],
+        ],
+        'faq'         => [
+            ['Pourquoi mes photos ne se chargent pas sur Leboncoin ?', 'C\'est souvent un problème de poids ou de connexion. Compresser les photos réduit fortement leur taille et fiabilise l\'upload, surtout en mobilité.'],
+            ['Quelle taille de photo pour une annonce ?', 'Une largeur de 1200 à 1500 px et un poids de quelques centaines de Ko suffisent largement pour des photos nettes sur Leboncoin.'],
+            ['Combien de photos puis-je préparer d\'un coup ?', 'Déposez tout le lot de votre annonce : l\'outil les compresse ensemble pour un téléchargement groupé.'],
+        ],
+    ],
+
+    'compresser-image-pour-instagram' => [
+        'title'       => 'Redimensionner une image pour Instagram — Bon format',
+        'description' => 'Préparez vos images pour Instagram : redimensionnez au bon format (1080 px) pour une qualité optimale dans le fil et les stories. Gratuit, en ligne.',
+        'h1'          => 'Redimensionner une image pour Instagram',
+        'subtitle'    => 'Le format 1080 px d\'Instagram, sans perte de netteté.',
+        'widget'      => ['mode' => 'resize', 'width' => 1080],
+        'intro'       => '<p>Instagram affiche les images à 1080 px de large. Une photo plus grande est recompressée par Instagram (souvent avec une perte visible), et une photo plus petite apparaît floue. Redimensionner à 1080 px en amont garantit la meilleure qualité.</p>
+                          <p>Cet outil ajuste la largeur à 1080 px en conservant les proportions. Pour un post carré, redimensionnez puis recadrez si nécessaire.</p>',
+        'how'         => [
+            ['Importez votre image', 'La photo destinée à votre post ou story.'],
+            ['Largeur : 1080 px', 'Pré-réglée, la hauteur suit les proportions.'],
+            ['Téléchargez', 'Une image au format idéal pour Instagram.'],
+        ],
+        'faq'         => [
+            ['Quelle taille pour un post Instagram ?', '1080×1080 px pour un carré, 1080×1350 px pour un portrait, 1080×1920 px pour une story. La largeur de référence est toujours 1080 px.'],
+            ['Pourquoi mes photos sont-elles floues sur Instagram ?', 'Souvent parce qu\'elles sont trop petites ou recompressées. Partir d\'une image à 1080 px de large améliore nettement le rendu.'],
+            ['L\'outil recadre-t-il au carré ?', 'Il redimensionne en gardant les proportions. Pour un carré exact, recadrez votre image avant ou après le redimensionnement.'],
+        ],
+    ],
+
+    'compresser-image-pour-site-internet' => [
+        'title'       => 'Compresser une image pour un site internet — Vitesse & SEO',
+        'description' => 'Compressez vos images pour votre site internet. Réduisez leur poids pour des pages plus rapides et un meilleur référencement, sans perte visible.',
+        'h1'          => 'Compresser une image pour un site internet',
+        'subtitle'    => 'Des pages qui se chargent vite et un meilleur référencement.',
+        'intro'       => '<p>Les images représentent la plus grande partie du poids d\'une page web. Des visuels non optimisés ralentissent le site, dégradent l\'expérience et font baisser le score de vitesse — un critère pris en compte par Google.</p>
+                          <p>Compressez vos images avant de les mettre en ligne : vos pages se chargent plus vite, sur tous les appareils, sans changement visible pour le visiteur.</p>',
+        'how'         => [
+            ['Préparez vos visuels', 'Compressez-les avant de les intégrer au site.'],
+            ['Privilégiez le WebP', 'Le format le plus léger pour le web.'],
+            ['Mettez en ligne', 'Téléchargez et intégrez les images allégées.'],
+        ],
+        'faq'         => [
+            ['Pourquoi compresser les images d\'un site ?', 'Pour accélérer le chargement, améliorer l\'expérience utilisateur et le score PageSpeed, ce qui favorise le référencement et réduit le taux de rebond.'],
+            ['Quel format pour le web ?', 'Le WebP offre le meilleur rapport qualité/poids. À défaut, JPG pour les photos et PNG pour les logos et images avec transparence.'],
+            ['Faut-il aussi redimensionner ?', 'Oui, idéalement : servez les images à la taille d\'affichage réelle. Combiner redimensionnement et compression donne les pages les plus rapides.'],
+        ],
+    ],
+
+    'reduire-taille-photo-identite' => [
+        'title'       => 'Réduire la taille d\'une photo d\'identité — Poids en Ko',
+        'description' => 'Réduisez le poids d\'une photo d\'identité pour vos démarches en ligne. Atteignez la taille en Ko demandée par les formulaires officiels. Gratuit.',
+        'h1'          => 'Réduire la taille d\'une photo d\'identité',
+        'subtitle'    => 'Atteignez le poids en Ko exigé par les démarches en ligne.',
+        'widget'      => ['mode' => 'target', 'default' => 100, 'unit' => 'kb'],
+        'intro'       => '<p>De nombreuses démarches administratives en ligne imposent une photo d\'identité sous un poids précis (souvent 50 à 100 Ko). Indiquez la taille demandée, l\'outil ajuste automatiquement la qualité pour respecter la limite.</p>
+                          <p>Astuce : si la photo est très grande, redimensionnez-la d\'abord, puis appliquez la taille cible en Ko.</p>',
+        'how'         => [
+            ['Déposez la photo', 'Votre photo d\'identité numérique.'],
+            ['Indiquez le poids en Ko', 'Celui demandé par le formulaire.'],
+            ['Téléchargez', 'Une photo conforme à la limite imposée.'],
+        ],
+        'faq'         => [
+            ['Quel poids pour une photo d\'identité en ligne ?', 'Cela dépend du service, mais 50 à 100 Ko est une fourchette fréquente. Reportez-vous à la consigne exacte du formulaire.'],
+            ['Et si je n\'arrive pas à descendre assez bas ?', 'Réduisez d\'abord les dimensions en pixels de la photo, puis appliquez la taille cible : il sera bien plus facile d\'atteindre un poids très faible.'],
+            ['Le visage restera-t-il net ?', 'Oui, dans les limites du poids demandé. Pour une photo d\'identité, le rendu reste tout à fait exploitable.'],
+        ],
+    ],
+
+    'compresser-photo-pour-carte-grise' => [
+        'title'       => 'Compresser une photo pour la carte grise (ANTS) — En ligne',
+        'description' => 'Compressez vos documents et photos pour la demande de carte grise sur l\'ANTS. Réduisez le poids des fichiers pour respecter les limites du site officiel.',
+        'h1'          => 'Compresser une photo pour la carte grise',
+        'subtitle'    => 'Passez sous la limite de poids exigée par l\'ANTS, sans rejet.',
+        'widget'      => ['mode' => 'target', 'default' => 1, 'unit' => 'mb'],
+        'intro'       => '<p>La demande de carte grise se fait en ligne sur le site de l\'ANTS, qui limite le poids des justificatifs téléversés. Des photos ou scans trop lourds sont refusés. Réduire leur poids permet de finaliser la démarche sans blocage.</p>
+                          <p>Indiquez le poids maximal accepté, l\'outil ajuste la qualité pour que chaque fichier passe sous la limite tout en restant lisible.</p>',
+        'how'         => [
+            ['Déposez le document', 'Photo ou scan de votre justificatif.'],
+            ['Réglez le poids maximal', 'Selon la limite indiquée par l\'ANTS.'],
+            ['Téléchargez', 'Un fichier conforme, prêt à téléverser.'],
+        ],
+        'faq'         => [
+            ['Quelle est la limite de poids sur l\'ANTS ?', 'Elle varie selon le type de justificatif (souvent autour de 1 Mo par fichier). Vérifiez la consigne affichée lors du dépôt et réglez la cible en conséquence.'],
+            ['Le document restera-t-il lisible ?', 'Oui : l\'outil conserve la meilleure qualité possible compatible avec le poids demandé, ce qui suffit pour un justificatif.'],
+            ['Puis-je traiter plusieurs documents ?', 'Oui, déposez-les ensemble : chaque fichier est compressé pour respecter la limite.'],
+        ],
+    ],
+
 ];

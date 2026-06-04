@@ -35,8 +35,8 @@
             <div class="footer-links">
                 <h4>Convertir &amp; redimensionner</h4>
                 <a href="<?= url('/convertir-png-en-jpg') ?>">PNG en JPG</a>
-                <a href="<?= url('/convertir-jpg-en-webp') ?>">JPG en WebP</a>
                 <a href="<?= url('/convertir-image-en-webp') ?>">Image en WebP</a>
+                <a href="<?= url('/redimensionner-image') ?>">Redimensionner</a>
                 <a href="<?= url('/reduire-image-en-ko') ?>">Réduire en Ko</a>
                 <a href="<?= url('/compresser-image-1-mo') ?>">En 1 Mo</a>
             </div>

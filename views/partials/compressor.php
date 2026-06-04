@@ -51,6 +51,17 @@ $widgetMode   = $widgetConfig['mode'] ?? 'compress';
                 </div>
             <?php elseif ($widgetMode === 'convert'): ?>
                 <p class="convert-note">Format de sortie : <strong><?= e($widgetConfig['toLabel'] ?? 'WebP') ?></strong> — vos images seront converties automatiquement.</p>
+            <?php elseif ($widgetMode === 'resize'): ?>
+                <div class="resize-wrap">
+                    <label>Nouvelles dimensions (en pixels)</label>
+                    <div class="resize-row">
+                        <input type="number" id="resizeWidth" min="1" placeholder="Largeur" value="<?= (int)($widgetConfig['width'] ?? 1080) ?>">
+                        <span class="resize-x">×</span>
+                        <input type="number" id="resizeHeight" min="1" placeholder="Hauteur"<?= !empty($widgetConfig['height']) ? ' value="' . (int)$widgetConfig['height'] . '"' : '' ?>>
+                    </div>
+                    <label class="resize-lock"><input type="checkbox" id="resizeLock" checked> Conserver les proportions</label>
+                    <p class="compression-hint">Laissez un champ vide pour qu'il soit calculé automatiquement.</p>
+                </div>
             <?php else: ?>
                 <div class="compression-slider-wrap">
                     <label>Niveau de compression</label>
@@ -63,7 +74,7 @@ $widgetMode   = $widgetConfig['mode'] ?? 'compress';
                     <p class="compression-hint" id="compressionHint">Compression légère — Qualité quasi identique, fichier un peu plus léger.</p>
                 </div>
             <?php endif; ?>
-            <button class="btn btn-primary btn-lg" id="compressBtn"><?= $widgetMode === 'convert' ? 'Convertir' : 'Compresser' ?></button>
+            <button class="btn btn-primary btn-lg" id="compressBtn"><?= ['convert' => 'Convertir', 'resize' => 'Redimensionner'][$widgetMode] ?? 'Compresser' ?></button>
         </div>
 
         <div class="results-container" id="resultsContainer" style="display:none">

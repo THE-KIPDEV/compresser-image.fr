@@ -152,3 +152,43 @@
     color: var(--text-secondary);
 }
 .convert-note strong { color: var(--primary); }
+
+/* --- Resize controls --- */
+.resize-wrap { margin-bottom: var(--space-md); }
+.resize-wrap > label {
+    display: block;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: var(--space-sm);
+}
+.resize-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    max-width: 360px;
+}
+.resize-row input[type="number"] {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+}
+.resize-row input[type="number"]:focus {
+    outline: none;
+    border-color: var(--border-focus);
+}
+.resize-x { color: var(--text-muted); font-weight: 700; }
+.resize-lock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: var(--space-sm);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.resize-lock input { cursor: pointer; }

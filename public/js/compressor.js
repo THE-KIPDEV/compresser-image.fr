@@ -25,11 +25,14 @@
     let currentLevel = 'light';
 
     // Per-page widget config (set inline by SEO landing pages).
-    // mode: 'compress' (default) | 'convert' | 'target'
+    // mode: 'compress' (default) | 'convert' | 'target' | 'resize'
     var CONFIG = window.COMPRESSOR_CONFIG || {};
     var MODE = CONFIG.mode || 'compress';
     var FORCE_OUTPUT = CONFIG.output || null; // e.g. 'image/jpeg' for conversion pages
     var targetInput = document.getElementById('targetSizeInput');
+    var resizeW = document.getElementById('resizeWidth');
+    var resizeH = document.getElementById('resizeHeight');
+    var resizeLock = document.getElementById('resizeLock');
 
     var hints = {
         light: 'Compression légère — Qualité quasi identique, fichier un peu plus léger.',
@@ -258,7 +261,18 @@
                     let width = img.naturalWidth;
                     let height = img.naturalHeight;
 
-                    if (currentLevel === 'strong' && (width > 2000 || height > 2000)) {
+                    if (MODE === 'resize') {
+                        var tw = parseInt(resizeW && resizeW.value) || 0;
+                        var th = parseInt(resizeH && resizeH.value) || 0;
+                        var lock = !resizeLock || resizeLock.checked;
+                        if (tw && !th)        { th = lock ? Math.round(height * tw / width) : height; }
+                        else if (th && !tw)   { tw = lock ? Math.round(width * th / height) : width; }
+                        else if (tw && th && lock) {
+                            var rr = Math.min(tw / width, th / height);
+                            tw = Math.round(width * rr); th = Math.round(height * rr);
+                        }
+                        if (tw && th) { width = tw; height = th; }
+                    } else if (currentLevel === 'strong' && (width > 2000 || height > 2000)) {
                         const ratio = Math.min(2000 / width, 2000 / height);
                         width = Math.round(width * ratio);
                         height = Math.round(height * ratio);
@@ -271,6 +285,9 @@
                     var outputQuality = quality;
                     if (FORCE_OUTPUT) {
                         outputType = FORCE_OUTPUT; // conversion pages
+                    } else if (MODE === 'resize') {
+                        // Resize keeps the original format at high quality (intent = dimensions, not format)
+                        outputQuality = 0.92;
                     } else if (file.type === 'image/png') {
                         // Canvas can't set PNG quality, so PNG is compressed as WebP
                         outputType = 'image/webp';
