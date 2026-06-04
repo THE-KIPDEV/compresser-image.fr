@@ -57,4 +57,60 @@ class SeoController
 
         view('seo/optimiser-web', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs'));
     }
+
+    /**
+     * Dynamic robots.txt (references the sitemap, built from SITE_URL).
+     */
+    public function robots(): void
+    {
+        header('Content-Type: text/plain; charset=utf-8');
+        $lines = [
+            'User-agent: *',
+            'Allow: /',
+            'Disallow: /api/',
+            'Disallow: /uploads/',
+            'Disallow: /tableau-de-bord',
+            'Disallow: /connexion',
+            'Disallow: /inscription',
+            'Disallow: /paiement/',
+            '',
+            'Sitemap: ' . SITE_URL . '/sitemap.xml',
+            '',
+        ];
+        echo implode("\n", $lines);
+        exit;
+    }
+
+    /**
+     * Dynamic sitemap.xml listing every public, indexable page.
+     */
+    public function sitemap(): void
+    {
+        // path => changefreq, priority
+        $urls = [
+            '/'                              => ['weekly',  '1.0'],
+            '/tarifs'                        => ['monthly', '0.8'],
+            '/compresser-png'                => ['monthly', '0.9'],
+            '/compresser-jpeg'               => ['monthly', '0.9'],
+            '/compresser-webp'               => ['monthly', '0.9'],
+            '/reduire-taille-image'          => ['monthly', '0.9'],
+            '/optimiser-image-web'           => ['monthly', '0.9'],
+            '/mentions-legales'              => ['yearly',  '0.3'],
+            '/politique-de-confidentialite'  => ['yearly',  '0.3'],
+            '/cgu'                           => ['yearly',  '0.3'],
+        ];
+
+        header('Content-Type: application/xml; charset=utf-8');
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach ($urls as $path => [$freq, $priority]) {
+            echo "  <url>\n";
+            echo '    <loc>' . e(SITE_URL . $path) . "</loc>\n";
+            echo "    <changefreq>$freq</changefreq>\n";
+            echo "    <priority>$priority</priority>\n";
+            echo "  </url>\n";
+        }
+        echo '</urlset>';
+        exit;
+    }
 }

@@ -128,6 +128,13 @@ class CompressController
         $originalSize = $file['size'];
         $compressedSize = filesize($outputPath);
 
+        // Never hand back a file larger than the original: keep the source bytes.
+        // (Common for already-optimised PNG/WebP where re-encoding adds overhead.)
+        if ($compressedSize >= $originalSize) {
+            copy($file['tmp_name'], $outputPath);
+            $compressedSize = filesize($outputPath);
+        }
+
         // Log compression if user is logged in
         if (isLoggedIn()) {
             $compression = new Compression();

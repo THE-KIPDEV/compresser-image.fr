@@ -25,6 +25,10 @@ return [
     '/paiement/succes'          => ['PaymentController', 'success'],
     '/paiement/annule'          => ['PaymentController', 'cancel'],
 
+    // SEO crawl files
+    '/robots.txt'               => ['SeoController', 'robots'],
+    '/sitemap.xml'              => ['SeoController', 'sitemap'],
+
     // SEO pages
     '/compresser-png'           => ['SeoController', 'compresserPng'],
     '/compresser-jpeg'          => ['SeoController', 'compresserJpeg'],
