@@ -56,6 +56,7 @@
             </div>
         </div>
 
+        <?php include __DIR__ . '/network.php'; ?>
         <div class="footer-bottom">
             <p>&copy; <?= date('Y') ?> compresser-image.fr — Tous droits réservés.</p>
         </div>
