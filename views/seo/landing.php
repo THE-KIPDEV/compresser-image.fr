@@ -48,6 +48,19 @@
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
+
+        <!-- Encart affiliation Amazon -->
+        <aside style="margin-top:var(--space-2xl);padding:var(--space-lg);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
+            <h2 style="font-size:1.1rem;margin-bottom:.4rem;">Matériel recommandé</h2>
+            <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1rem;font-size:.95rem;">Vous compressez vos photos pour gagner de la place ? Pensez aussi à les sauvegarder sur un support fiable :</p>
+            <div style="display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem;">
+                <a href="https://www.amazon.fr/s?k=disque+dur+externe&tag=yohannleskits-21" target="_blank" rel="sponsored nofollow noopener" style="display:inline-block;padding:.55rem 1rem;border:1px solid #FF9900;color:#b35900;border-radius:var(--radius-full);font-weight:600;font-size:.9rem;text-decoration:none;background:#fff8ef;">Disque dur externe</a>
+                <a href="https://www.amazon.fr/s?k=SSD+externe&tag=yohannleskits-21" target="_blank" rel="sponsored nofollow noopener" style="display:inline-block;padding:.55rem 1rem;border:1px solid #FF9900;color:#b35900;border-radius:var(--radius-full);font-weight:600;font-size:.9rem;text-decoration:none;background:#fff8ef;">SSD externe</a>
+                <a href="https://www.amazon.fr/s?k=cle+USB&tag=yohannleskits-21" target="_blank" rel="sponsored nofollow noopener" style="display:inline-block;padding:.55rem 1rem;border:1px solid #FF9900;color:#b35900;border-radius:var(--radius-full);font-weight:600;font-size:.9rem;text-decoration:none;background:#fff8ef;">Clé USB</a>
+                <a href="https://www.amazon.fr/s?k=carte+memoire+SD&tag=yohannleskits-21" target="_blank" rel="sponsored nofollow noopener" style="display:inline-block;padding:.55rem 1rem;border:1px solid #FF9900;color:#b35900;border-radius:var(--radius-full);font-weight:600;font-size:.9rem;text-decoration:none;background:#fff8ef;">Carte mémoire SD</a>
+            </div>
+            <p style="color:var(--text-muted);font-size:.78rem;line-height:1.5;margin:0;">En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises. Liens sponsorisés.</p>
+        </aside>
     </div>
 </section>
 
