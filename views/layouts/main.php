@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="<?= asset('css/' . $css) ?>">
     <?php endforeach; endif; ?>
     <link rel="icon" type="image/svg+xml" href="<?= asset('images/favicon.svg') ?>">
+    <script defer src="https://kipstats.com/tracker.js" data-site="kp_ce7b7111"></script>
 </head>
 <body>
     <?php partial('header'); ?>
