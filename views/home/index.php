@@ -187,8 +187,8 @@
                 <p>En mode gratuit, tout se passe dans votre navigateur. Aucun fichier n'est envoyé nulle part. En mode Pro, les images passent par notre serveur le temps de la compression, puis sont supprimées immédiatement.</p>
             </details>
             <details class="faq-item">
-                <summary>C'est quoi la différence entre Intelligent et Maximum ?</summary>
-                <p><strong>Intelligent</strong> trouve le bon équilibre entre qualité et poids — c'est le mode recommandé. <strong>Maximum</strong> pousse la compression plus loin, avec parfois une légère perte visible. <strong>Méga</strong> (Pro) passe par le serveur pour aller encore plus loin.</p>
+                <summary>Quel niveau de compression choisir ?</summary>
+                <p><strong>Léger</strong> garde une qualité quasi identique et allège un peu le fichier. <strong>Recommandé</strong> trouve le bon équilibre entre qualité et poids — c'est le bon choix dans la plupart des cas. <strong>Fort</strong> pousse la compression plus loin, avec parfois une légère perte visible. <strong>Méga</strong> (Pro) passe par le serveur pour aller encore plus loin.</p>
             </details>
             <details class="faq-item">
                 <summary>Quels formats sont supportés ?</summary>
