@@ -35,6 +35,13 @@
                 <input type="file" id="prFileInput" accept="image/png" multiple hidden>
             </div>
 
+            <!-- Diagnostic rendu avant toute compression -->
+            <div id="prDiag" hidden>
+                <h3 class="pr-diag-title">Ce que vos fichiers ont dans le ventre</h3>
+                <div id="prDiagList"></div>
+                <p class="pr-hint">Lu directement dans vos pixels, sur votre machine, avant de compresser quoi que ce soit. Rien n'est envoyé nulle part.</p>
+            </div>
+
             <div class="pr-options" id="prOptWeight" hidden>
                 <fieldset class="pr-modes">
                     <legend>Comment réduire le poids ?</legend>
@@ -190,6 +197,17 @@
             <p><strong>Donc, honnêtement :</strong> si votre PNG est une photo ou contient de grands dégradés, arrêtez-vous là. La quantification vous donnera soit un fichier plus lourd, soit du banding. Le problème n'est pas la compression, c'est le format.</p>
         </div>
 
+        <h2 id="diagnostic">L'outil vous le dit avant, pas après</h2>
+        <p>Tout ce qui est écrit au-dessus, vous n'avez pas à le deviner sur votre fichier : dès que vous déposez un PNG, l'outil le lit et rend son verdict avant que vous ayez cliqué sur quoi que ce soit. Deux comptages exacts, et une mesure réelle.</p>
+        <ul>
+            <li><strong>Les couleurs RGBA distinctes.</strong> S'il y en a 256 ou moins, la palette les contient toutes : le PNG produit est alors identique au vôtre, pixel pour pixel. Pas « presque » — identique. Beaucoup de logos et d'icônes sont dans ce cas et personne ne le leur dit.</li>
+            <li><strong>Les niveaux de transparence.</strong> C'est le budget que l'antialiasing des contours prélève sur la palette. Au-delà de 32 niveaux, on vous prévient que ce sont les bords qui craqueront en premier, pas les couleurs.</li>
+            <li><strong>Le résultat, vraiment mesuré.</strong> Au-dessus de 256 couleurs, on encode réellement votre fichier à 256 pour voir ce que ça donne, et on vous annonce le poids obtenu. S'il est plus gros que l'original, on vous le dit et on vous envoie vers le JPG ou le WebP.</li>
+        </ul>
+        <p>Ce dernier point mérite une explication, parce qu'on a d'abord fait l'inverse. La première version devinait le type d'image avec une heuristique : mesurer la part de pixels voisins qui varient de façon douce, signature d'un dégradé. Ça n'a pas survécu à nos propres fichiers de test. Le dégradé du comparatif plus haut sort à 27 % de « variations douces », et notre favicon — un logo de 32 px — à 55 %. L'heuristique aurait donc classé le logo en photo et refusé de le traiter. On l'a jetée. Encoder pour de vrai coûte une seconde de plus et ne peut pas se tromper sur le poids.</p>
+        <p>Le verdict « mauvais candidat » est celui qui nous coûte de l'argent, alors autant être clair sur la raison : vous le découvririez de toute façon en téléchargeant. Autant vous l'annoncer trente secondes plus tôt.</p>
+        <p>Après compression, on affiche aussi la palette elle-même — les pastilles de couleur sous chaque résultat. Ce ne sont pas des vignettes décoratives : ce sont les entrées du chunk PLTE de votre fichier, celles que votre visionneuse va lire. Voir un logo tenir en 12 couleurs explique le -87 % mieux que n'importe quel paragraphe.</p>
+
         <h2 id="pas-de-png">Le meilleur moyen de réduire un PNG : ne pas rester en PNG</h2>
         <p>Ça dessert notre propre outil de l'écrire, mais c'est vrai dans un cas sur deux, alors autant le dire. Le PNG n'a qu'un seul avantage réel : la transparence, et le rendu net des aplats. Si votre image n'a pas de transparence et n'est pas un dessin à couleurs franches, elle est en PNG par accident, souvent parce que c'était le réglage par défaut d'un export ou d'un outil de capture.</p>
         <p>La règle de décision tient en trois lignes :</p>
@@ -261,6 +279,8 @@
             'operatingSystem'     => 'Web',
             'browserRequirements' => 'Navigateur supportant CompressionStream (Chrome, Edge, Firefox 113+, Safari 16.4+)',
             'featureList'         => [
+                'Diagnostic avant compression : couleurs uniques, niveaux de transparence, part de dégradé',
+                'Affichage de la palette réellement écrite dans le fichier PNG',
                 'Quantification de palette de 16 à 256 couleurs',
                 'Mode poids maximal (Ko ou Mo)',
                 'Redimensionnement en pixels',

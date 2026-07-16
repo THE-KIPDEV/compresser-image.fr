@@ -212,7 +212,96 @@
         parts.push(chunk('IDAT', await deflate(raw)));
         parts.push(chunk('IEND', new Uint8Array(0)));
 
-        return { blob: new Blob(parts, { type: 'image/png' }), colors: palette.length };
+        return { blob: new Blob(parts, { type: 'image/png' }), colors: palette.length, palette: palette };
+    }
+
+    // ─────────────────── Diagnostic (avant compression) ───────────────────
+
+    /**
+     * Deux comptages exacts, rien d'estimé :
+     *  - uniques     : couleurs RGBA distinctes. <= 256 => la palette les contient
+     *                  TOUTES et l'encodage est rigoureusement sans perte.
+     *  - alphaLevels : niveaux d'alpha distincts. Sur un logo antialiasé, ce sont
+     *                  eux qui mangent la palette et lâchent avant les couleurs.
+     */
+    function analyze(rgba) {
+        var seen = new Set();
+        var alphas = new Set();
+        for (var i = 0; i < rgba.length; i += 4) {
+            var a = rgba[i + 3];
+            alphas.add(a);
+            seen.add(a === 0 ? 0 : (((rgba[i] << 24) | (rgba[i + 1] << 16) | (rgba[i + 2] << 8) | a) >>> 0));
+        }
+        return {
+            uniques: seen.size,
+            alphaLevels: alphas.size,
+            hasAlpha: alphas.size > 1 || !alphas.has(255)
+        };
+    }
+
+    /**
+     * Le verdict.
+     *
+     * On a d'abord essayé de deviner le type d'image avec une heuristique
+     * (part de pixels voisins en variation douce = dégradé/photo). Mesurée sur
+     * nos propres fichiers, elle se trompait : notre dégradé de test sort à
+     * 27 % « doux » et notre favicon à 55 %. L'heuristique aurait donc traité
+     * un logo en photo. Un mauvais verdict est pire que pas de verdict.
+     *
+     * Donc on ne devine plus : on encode réellement le fichier à 256 couleurs
+     * et on lit le résultat. C'est le seul chiffre qu'on ait le droit d'annoncer.
+     */
+    async function verdictOf(file, rgba, w, h) {
+        var a = analyze(rgba);
+        var n = a.uniques.toLocaleString('fr-FR');
+
+        if (a.uniques <= 256) {
+            return {
+                kind: 'perfect',
+                label: 'Cas idéal',
+                text: n + ' couleurs uniques : elles tiennent toutes dans une palette de 256. ' +
+                      'À ce réglage, le PNG produit est identique au vôtre, pixel pour pixel — ' +
+                      'la réduction est ici strictement sans perte.'
+            };
+        }
+
+        var trial = await encodePng8(rgba, w, h, 256);
+        var gain = Math.round((1 - trial.blob.size / file.size) * 100);
+
+        if (trial.blob.size >= file.size) {
+            return {
+                kind: 'bad',
+                label: 'Mauvais candidat',
+                text: 'On vient d\'essayer : à 256 couleurs, votre fichier passe de ' + fmt(file.size) +
+                      ' à ' + fmt(trial.blob.size) + ', soit ' + Math.abs(gain) + ' % de plus. ' +
+                      'C\'est la signature d\'un dégradé ou d\'une photo : la palette casse la régularité ' +
+                      'que le PNG compressait très bien. Le problème n\'est pas la compression, c\'est le format.'
+            };
+        }
+
+        if (a.uniques > 10000) {
+            return {
+                kind: 'caution',
+                label: 'À vos risques',
+                text: n + ' couleurs uniques ramenées à 256, c\'est plus de 97 % du vocabulaire de couleurs ' +
+                      'qui saute. Le poids tombe bien (' + fmt(file.size) + ' → ' + fmt(trial.blob.size) +
+                      ', -' + gain + ' %), mais sur ce nombre de teintes le banding est à peu près certain. ' +
+                      'Téléchargez et regardez avant de valider.'
+            };
+        }
+
+        var out = {
+            kind: 'good',
+            label: 'Bon candidat',
+            text: n + ' couleurs uniques : mesuré à 256 couleurs, votre fichier tombe à ' +
+                  fmt(trial.blob.size) + ' (-' + gain + ' %). C\'est du logo, de la capture ou de ' +
+                  'l\'illustration : le gain est là et il ne devrait pas se voir.'
+        };
+        if (a.hasAlpha && a.alphaLevels >= 32) {
+            out.text += ' Attention aux contours : ' + a.alphaLevels + ' niveaux de transparence servent à ' +
+                        'les adoucir, et ce sont eux qui lâchent en premier sous 64 couleurs.';
+        }
+        return out;
     }
 
     // ─────────────────────────── Utilitaires ───────────────────────────
@@ -256,6 +345,8 @@
     var optWeight   = $('prOptWeight');
     var optDims     = $('prOptDims');
     var runBtn      = $('prRunBtn');
+    var diagBox     = $('prDiag');
+    var diagList    = $('prDiagList');
     var resultsBox  = $('prResults');
     var resultsList = $('prResultsList');
     var summary     = $('prSummary');
@@ -287,6 +378,7 @@
             optDims.hidden = pathChoice !== 'dimensions';
             runBtn.textContent = pathChoice === 'dimensions' ? 'Redimensionner mes PNG' : 'Réduire mes PNG';
             stepDrop.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (files.length) diagnose();
         });
     });
 
@@ -338,6 +430,7 @@
              notes.length ? 'warn' : 'ok');
         runBtn.hidden = false;
         resultsBox.hidden = true;
+        diagnose();
     }
 
     function show(msg, kind) {
@@ -345,11 +438,57 @@
         status.className = 'pr-status' + (kind ? ' pr-status-' + kind : '');
     }
 
+    /**
+     * Analyse les fichiers dès le dépôt, avant toute compression. Sur le
+     * parcours « dimensions » l'intention est de changer les pixels, pas la
+     * palette : le diagnostic n'a rien à dire, on ne l'affiche pas.
+     */
+    async function diagnose() {
+        if (pathChoice !== 'poids' || !files.length) { diagBox.hidden = true; return; }
+        diagList.innerHTML = '';
+        diagBox.hidden = false;
+
+        var prevMsg = status.textContent, prevCls = status.className;
+        runBtn.disabled = true;
+        show('Analyse de vos fichiers…');
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            try {
+                var img = await loadImage(file);
+                var w = img.naturalWidth, h = img.naturalHeight;
+                var v = await verdictOf(file, pixelsOf(img, w, h), w, h);
+
+                var card = document.createElement('div');
+                card.className = 'pr-diag-item pr-diag-' + v.kind;
+                card.innerHTML =
+                    '<p class="pr-diag-head"><span class="pr-diag-tag">' + v.label + '</span> ' +
+                    '<span class="pr-name">' + file.name.replace(/[<>&]/g, '') + '</span> ' +
+                    '<span class="pr-detail">' + w + ' × ' + h + ' px · ' + fmt(file.size) + '</span></p>' +
+                    '<p class="pr-diag-text">' + v.text + '</p>';
+
+                if (v.kind === 'bad' || v.kind === 'caution') {
+                    card.innerHTML +=
+                        '<p class="pr-diag-text">À votre place : ' +
+                        '<a href="/convertir-png-en-jpg">convertir ce PNG en JPG</a> si la transparence ne sert pas, ' +
+                        'sinon <a href="/convertir-png-en-webp">passer en WebP</a>. ' +
+                        'Vous pouvez quand même quantifier ci-dessous, on ne vous rendra jamais un fichier plus lourd.</p>';
+                }
+                diagList.appendChild(card);
+            } catch (err) {
+                /* fichier illisible : l'erreur ressortira à la compression */
+            }
+        }
+        status.textContent = prevMsg;
+        status.className = prevCls;
+        runBtn.disabled = false;
+    }
+
     runBtn.addEventListener('click', run);
     resetBtn.addEventListener('click', function () {
         files = []; results = [];
         fileInput.value = '';
         resultsBox.hidden = true;
+        diagBox.hidden = true;
         runBtn.hidden = true;
         show('');
     });
@@ -424,7 +563,7 @@
 
                 results.push({
                     name: file.name, before: file.size, after: final.size,
-                    colors: out.colors, url: URL.createObjectURL(final),
+                    colors: out.colors, palette: out.palette, url: URL.createObjectURL(final),
                     w: w, h: h, bigger: bigger, missed: out.hit === false
                 });
                 totalIn += file.size; totalOut += final.size;
@@ -482,6 +621,26 @@
             (pct > 0 ? ' <span class="pr-badge">-' + pct + '%</span>' : '') + '</p>' +
             '<p class="pr-detail">' + detail + '</p>' +
             (note ? '<p class="pr-detail">' + note + '</p>' : '');
+
+        // La palette réellement écrite dans le chunk PLTE du fichier téléchargé.
+        // (Pas un rendu décoratif : ce sont les octets du PNG.)
+        if (!r.bigger && r.palette) {
+            var pal = document.createElement('div');
+            pal.className = 'pr-palette';
+            pal.setAttribute('role', 'img');
+            pal.setAttribute('aria-label', 'Palette de ' + r.colors + ' couleurs écrite dans le fichier PNG');
+            for (var i = 0; i < r.palette.length; i++) {
+                var c = r.palette[i];
+                var sw = document.createElement('span');
+                sw.className = 'pr-swatch';
+                sw.style.background = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (c[3] / 255).toFixed(3) + ')';
+                sw.title = '#' + [c[0], c[1], c[2]].map(function (v) {
+                    return ('0' + v.toString(16)).slice(-2);
+                }).join('') + (c[3] < 255 ? ' · alpha ' + c[3] + '/255' : '');
+                pal.appendChild(sw);
+            }
+            meta.appendChild(pal);
+        }
 
         var a = document.createElement('a');
         a.className = 'btn btn-primary pr-dl';
