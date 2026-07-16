@@ -73,6 +73,8 @@
                 <li>Illustrations avec des aplats de couleur</li>
                 <li>Images necessitant une qualite sans perte</li>
             </ul>
+            <h3>Vous avez besoin que le résultat reste un .png ?</h3>
+            <p>Cet outil ré-encode les PNG en WebP : c'est ce qui donne le meilleur gain, mais le fichier change d'extension. Si vous devez garder un vrai fichier PNG en sortie, ou si votre problème est plutôt les dimensions en pixels que le poids, passez par notre page dédiée : <a href="<?= url('/reduire-taille-png') ?>">réduire la taille d'un PNG</a>. Elle garde le format PNG, expose le nombre de couleurs de la palette (16 à 256), propose un mode « poids maximal » et détaille nos mesures de gain réelles par type d'image.</p>
         <?php elseif ($seoFormat === 'JPEG'): ?>
             <h2>Comment compresser un fichier JPEG ?</h2>
             <p>Le format JPEG est le plus utilise pour les photographies sur le web. Il offre un bon rapport qualite/taille grace a sa compression avec perte.</p>

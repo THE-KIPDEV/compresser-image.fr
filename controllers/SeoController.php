@@ -38,6 +38,50 @@ class SeoController
         view('seo/format', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs', 'seoFormat', 'seoSlug'));
     }
 
+    /**
+     * /reduire-taille-png — requête à double intention (poids OU dimensions).
+     * Page dédiée avec son propre encodeur PNG-8 (public/js/png-reducer.js) :
+     * contrairement au compresseur générique, la sortie reste un PNG.
+     */
+    public function reduireTaillePng(): void
+    {
+        $pageTitle       = 'Réduire la taille d\'un PNG : poids ou dimensions ? Guide 2026';
+        $pageDescription = 'Réduire un PNG en Ko/Mo ou en pixels : nos mesures réelles par palette (256 à 16 couleurs), la sortie reste en PNG, transparence conservée. Gratuit, sans upload.';
+        $extraCss        = ['home.css', 'compressor.css', 'seo.css', 'png-reducer.css'];
+        $extraJs         = ['png-reducer.js'];
+
+        // FAQ affichée en HTML + reprise en JSON-LD FAQPage par la vue.
+        // (Les réponses acceptent un peu de HTML pour les liens internes.)
+        $faq = [
+            [
+                'Réduire la taille d\'un PNG sans perte de qualité, c\'est possible ?',
+                'Oui, mais « sans perte » a deux sens. Optimiser un PNG sans rien toucher aux pixels (retirer les métadonnées, recompresser plus finement) ne rapporte que quelques pourcents. Réduire le nombre de couleurs fait gagner 70 à 85 % sur un logo ou une capture, mais c\'est une perte : la palette est plus petite. Sur nos mesures, à 256 couleurs l\'écart avec l\'original est de 2,7/255 sur un logo — invisible en pratique, mais ce n\'est pas du sans perte au sens strict.',
+            ],
+            [
+                'La transparence de mon PNG est-elle conservée ?',
+                'Oui. L\'outil écrit la transparence dans un chunk tRNS, entrée de palette par entrée de palette, et le damier gris affiché sous chaque résultat vous le montre directement. Une réserve honnête : en dessous de 64 couleurs, la palette manque de place pour les demi-transparences des contours antialiasés, et les bords deviennent crénelés. Restez à 128 ou 256 couleurs pour un logo à bords lisses.',
+            ],
+            [
+                'Pourquoi mon PNG ne descend pas, ou grossit ?',
+                'C\'est presque toujours un dégradé ou une photo. Ces images n\'ont pas de couleurs répétées à factoriser : la quantification remplace une progression régulière (que les filtres PNG adorent) par des index qui sautent à chaque bande, et le fichier peut grossir. Notre dégradé de test passe de 9,3 à 13,8 Ko en 256 couleurs. Dans ce cas l\'outil vous rend l\'original intact — et la vraie solution est de convertir en JPG ou en WebP.',
+            ],
+            [
+                'Quelle est la différence avec la page Compresser PNG ?',
+                'Le compresseur générique ré-encode les PNG en WebP : c\'est plus efficace, mais le fichier change d\'extension. Cette page garde du PNG en sortie, expose le nombre de couleurs et ajoute un mode « poids maximal ». Utilisez-la quand vous avez besoin que le résultat reste un vrai fichier .png.',
+            ],
+            [
+                'PNG ou WebP, lequel choisir ?',
+                'Le WebP est plus léger que le PNG à qualité visuelle égale, et il gère la transparence lui aussi. Tous les navigateurs le lisent depuis 2020. Le PNG garde l\'avantage sur les vieux logiciels de bureau et certains formulaires administratifs qui refusent encore le WebP. Pour le web, WebP ; pour un dépôt de dossier, PNG.',
+            ],
+            [
+                'Combien de PNG puis-je traiter d\'un coup ?',
+                '10 fichiers, 10 Mo chacun. Cette limite n\'est pas commerciale : tout le traitement se fait dans la mémoire de votre onglet, et au-delà les navigateurs commencent à ramer sérieusement.',
+            ],
+        ];
+
+        view('seo/reduire-taille-png', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs', 'faq'));
+    }
+
     public function reduireTaille(): void
     {
         $pageTitle = 'Réduire la taille d\'une image en ligne — Gratuit et rapide';
@@ -137,6 +181,7 @@ class SeoController
             '/compresser-jpeg'               => ['monthly', '0.9'],
             '/compresser-webp'               => ['monthly', '0.9'],
             '/reduire-taille-image'          => ['monthly', '0.9'],
+            '/reduire-taille-png'            => ['monthly', '0.9'],
             '/optimiser-image-web'           => ['monthly', '0.9'],
         ];
         // Programmatic SEO landing pages.

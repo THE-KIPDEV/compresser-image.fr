@@ -34,6 +34,7 @@ return [
     '/compresser-jpeg'          => ['SeoController', 'compresserJpeg'],
     '/compresser-webp'          => ['SeoController', 'compresserWebp'],
     '/reduire-taille-image'     => ['SeoController', 'reduireTaille'],
+    '/reduire-taille-png'       => ['SeoController', 'reduireTaillePng'],
     '/optimiser-image-web'      => ['SeoController', 'optimiserWeb'],
 
     // Legal

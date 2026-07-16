@@ -1,0 +1,184 @@
+/* /reduire-taille-png — désambiguïsation, outil PNG-8, tableau de mesures */
+
+/* `display:flex/grid` ci-dessous l'emporterait sur le [hidden] du navigateur :
+   sans cette règle, les options du mode inactif restent affichées. */
+#pngReducer [hidden] { display: none !important; }
+
+/* ── Bloc « poids ou dimensions ? » ── */
+.pr-fork {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    margin: var(--space-lg) 0;
+}
+.pr-card {
+    text-align: left;
+    padding: var(--space-lg);
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+    font: inherit;
+    color: inherit;
+}
+.pr-card:hover { border-color: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.pr-card.active { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-50); }
+.pr-card h3 { font-size: 1.05rem; margin: 0 0 .35rem; }
+.pr-card p { color: var(--text-secondary); font-size: .9rem; line-height: 1.5; margin: 0; }
+.pr-card .pr-eg {
+    display: block;
+    margin-top: .6rem;
+    font-size: .82rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ── Zone de dépôt ── */
+.pr-drop {
+    border: 2px dashed var(--border-strong, var(--gray-300));
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl) var(--space-md);
+    text-align: center;
+    cursor: pointer;
+    background: var(--bg-soft);
+    transition: border-color .15s, background .15s;
+}
+.pr-drop:hover, .pr-drop.dragging { border-color: var(--primary); background: var(--primary-50); }
+.pr-drop:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.pr-drop strong { display: block; margin-bottom: .3rem; }
+.pr-drop span { color: var(--text-muted); font-size: .88rem; }
+
+/* ── Options ── */
+.pr-options {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.pr-options > label,
+.pr-options legend { font-weight: 600; font-size: .92rem; }
+.pr-modes { display: flex; flex-wrap: wrap; gap: var(--space-md); margin: .6rem 0 .8rem; border: 0; padding: 0; }
+.pr-modes label { display: flex; align-items: center; gap: .4rem; font-size: .92rem; cursor: pointer; }
+.pr-row-field { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.pr-row-field input[type="number"],
+.pr-row-field select {
+    padding: .5rem .6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    background: var(--bg);
+    min-width: 5.5rem;
+}
+.pr-hint { color: var(--text-muted); font-size: .84rem; line-height: 1.5; margin: .5rem 0 0; }
+
+/* ── Statut ── */
+.pr-status { margin-top: var(--space-sm); font-size: .9rem; min-height: 1.2em; }
+.pr-status-ok { color: var(--success); }
+.pr-status-warn { color: #b45309; }
+.pr-status-error { color: var(--error); }
+
+/* ── Résultats ── */
+.pr-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+.pr-summary > div {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-sm);
+    text-align: center;
+}
+.pr-summary span { display: block; font-size: .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; }
+.pr-summary strong { font-size: 1.05rem; }
+.pr-gain { color: var(--success); }
+
+.pr-row {
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: var(--space-md);
+    align-items: center;
+    padding: var(--space-sm) 0;
+    border-top: 1px solid var(--border);
+}
+.pr-row-error { display: block; color: var(--error); font-size: .9rem; }
+
+/* Damier : rend la transparence conservée visible à l'œil */
+.pr-thumb {
+    width: 72px; height: 72px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background-color: #fff;
+    background-image:
+        linear-gradient(45deg, var(--gray-200) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--gray-200) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--gray-200) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--gray-200) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+.pr-thumb img { max-width: 100%; max-height: 100%; display: block; }
+.pr-name { font-weight: 600; font-size: .92rem; margin: 0 0 .15rem; word-break: break-all; }
+.pr-sizes { margin: 0; font-size: .92rem; color: var(--text-secondary); }
+.pr-badge {
+    display: inline-block; background: var(--success-light); color: #065f46;
+    border-radius: var(--radius-full); padding: .08rem .5rem; font-size: .78rem; font-weight: 700;
+}
+.pr-detail { margin: .2rem 0 0; font-size: .8rem; color: var(--text-muted); line-height: 1.45; }
+.pr-dl { white-space: nowrap; }
+
+/* ── Tableau de mesures ── */
+.pr-table-wrap { overflow-x: auto; margin: var(--space-md) 0 var(--space-sm); }
+.pr-table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 34rem; }
+.pr-table caption {
+    caption-side: bottom; text-align: left; font-size: .82rem;
+    color: var(--text-muted); padding-top: .6rem; line-height: 1.5;
+}
+.pr-table th, .pr-table td { padding: .55rem .6rem; border-bottom: 1px solid var(--border); text-align: right; }
+.pr-table th:first-child, .pr-table td:first-child { text-align: left; }
+.pr-table thead th { background: var(--bg-soft); font-size: .82rem; }
+.pr-table tbody th { font-weight: 600; }
+.pr-win { color: var(--success); font-weight: 600; }
+.pr-lose { color: var(--error); font-weight: 600; }
+
+/* ── Comparatif visuel banding ── */
+.pr-compare { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin: var(--space-md) 0; }
+.pr-compare figure { margin: 0; }
+.pr-compare img {
+    width: 100%; height: auto; display: block;
+    border: 1px solid var(--border); border-radius: var(--radius);
+}
+.pr-compare figcaption { font-size: .82rem; color: var(--text-muted); margin-top: .4rem; line-height: 1.45; }
+
+/* ── Encadré verdict ── */
+.pr-verdict {
+    border-left: 4px solid var(--primary);
+    background: var(--primary-50);
+    padding: var(--space-md);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: var(--space-lg) 0;
+}
+.pr-verdict p:last-child { margin-bottom: 0; }
+
+.pr-warn {
+    border-left: 4px solid var(--warning);
+    background: var(--warning-light);
+    padding: var(--space-md);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: var(--space-lg) 0;
+}
+.pr-warn p:last-child { margin-bottom: 0; }
+
+@media (max-width: 640px) {
+    .pr-fork, .pr-compare { grid-template-columns: 1fr; }
+    .pr-summary { grid-template-columns: repeat(2, 1fr); }
+    .pr-row { grid-template-columns: 56px 1fr; }
+    .pr-thumb { width: 56px; height: 56px; }
+    .pr-dl { grid-column: 1 / -1; text-align: center; }
+}

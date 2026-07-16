@@ -69,5 +69,7 @@
             <li><strong>Bande passante</strong> : Couts d'hebergement reduits</li>
             <li><strong>Mobile</strong> : Chargement plus rapide sur reseau mobile</li>
         </ul>
+        <h3>Le cas particulier du PNG</h3>
+        <p>Le PNG ne se compresse pas comme le JPEG : il n'a pas de curseur de qualité, et le seul vrai levier est de réduire le nombre de couleurs de sa palette. Le gain dépend énormément du contenu — environ 73 % sur un logo ou une capture d'écran, mais un dégradé peut carrément grossir. Si vos fichiers sont des PNG, notre page <a href="<?= url('/reduire-taille-png') ?>">réduire la taille d'un PNG</a> détaille nos mesures palette par palette et garde le format PNG en sortie.</p>
     </div>
 </section>
