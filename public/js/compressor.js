@@ -293,6 +293,58 @@
         return { blob: fallback, target: target, width: fw, height: fh, scaled: fw < w, over: true };
     }
 
+    // Read an image's pixels back out of a canvas, alpha preserved (never flattened
+    // to white — that only happens for JPEG output). Used to feed the PNG-8 encoder.
+    function pixelsOf(img, w, h) {
+        var canvas = renderAt(img, w, h, 1, 'image/png');
+        var ctx = canvas.getContext('2d');
+        return { canvas: canvas, rgba: ctx.getImageData(0, 0, canvas.width, canvas.height).data };
+    }
+
+    // Plain "compress this PNG" case. The old behaviour swapped PNG → WebP silently,
+    // which changes the extension and breaks admin/desktop uploads that still refuse
+    // .webp. Now we give back a REAL PNG (256-colour palette, via png8-encoder.js) and
+    // offer WebP as the explicit lighter alternative. On a photo/gradient the palette
+    // makes the file bigger — there we recommend WebP and keep the untouched PNG as the
+    // fallback, instead of pretending a quantised PNG helped.
+    async function encodePngWithChoice(img, w, h, file, quality, thumbUrl) {
+        var px = pixelsOf(img, w, h);
+        var png = await window.PNG8.encode(px.rgba, px.canvas.width, px.canvas.height, 256);
+
+        var webpQ = (currentLevel === 'light' || currentLevel === 'recommended')
+            ? Math.max(quality, 0.85) : quality;
+        var webpBlob = await canvasEncode(px.canvas, 'image/webp', webpQ);
+
+        var pngHelped  = png.blob.size < file.size;
+        var webpHelped = webpBlob && webpBlob.size < file.size;
+
+        var pngOpt  = { blob: pngHelped ? png.blob : file, type: 'image/png', unchanged: !pngHelped };
+        var webpOpt = webpHelped ? { blob: webpBlob, type: 'image/webp', unchanged: false } : null;
+
+        // Recommend PNG when the palette genuinely compressed it (logo/screenshot);
+        // otherwise it's a photo/gradient and WebP is the honest win.
+        var recommendPng = pngHelped || !webpOpt;
+        var primary = recommendPng ? pngOpt : webpOpt;
+        var alt     = recommendPng ? webpOpt : pngOpt;
+
+        // Nothing beat the original: hand back the untouched PNG, no second option.
+        if (primary.unchanged && (!alt || alt.unchanged)) {
+            return {
+                name: file.name, originalSize: file.size, blob: file,
+                thumbUrl: thumbUrl, compressedUrl: URL.createObjectURL(file),
+                type: 'image/png', unchanged: true,
+            };
+        }
+
+        return {
+            name: file.name, originalSize: file.size,
+            blob: primary.blob, type: primary.type,
+            thumbUrl: thumbUrl, compressedUrl: URL.createObjectURL(primary.blob),
+            converted: primary.type !== file.type,
+            alt: alt,
+        };
+    }
+
     function compressImage(file, quality) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -341,6 +393,14 @@
                     }
 
                     try {
+                        // Plain PNG compression: keep it a PNG, offer WebP explicitly.
+                        // (Falls through to the generic WebP path if the browser has no
+                        // CompressionStream, so png8-encoder.js never defined window.PNG8.)
+                        if (MODE === 'compress' && !FORCE_OUTPUT && file.type === 'image/png' && window.PNG8) {
+                            resolve(await encodePngWithChoice(img, width, height, file, quality, e.target.result));
+                            return;
+                        }
+
                         var blob, fit = null;
                         if (MODE === 'target') {
                             fit = await encodeToTarget(img, width, height, outputType);
@@ -414,6 +474,24 @@
                '</div>' + noteHtml;
     }
 
+    // For PNG-compress results that carry both a PNG and a WebP: a short note saying
+    // which format is recommended and why, plus a button to grab the other one.
+    function formatChoiceHtml(result) {
+        if (!result.alt) return '';
+        var note = result.type === 'image/png'
+            ? 'PNG conservé — extension <code>.png</code> préservée, transparence incluse.'
+            : 'Converti en WebP, plus léger. Le PNG d\'origine reste dispo ci-dessous.';
+        var a = result.alt;
+        var altLabel = a.type === 'image/webp'
+            ? 'Convertir en WebP'
+            : (a.unchanged ? 'Garder le PNG d\'origine' : 'Garder en PNG');
+        var altSize = formatSize(a.blob.size);
+        return '<div class="result-format-note">' + note + '</div>' +
+               '<button class="btn btn-ghost btn-sm alt-download-btn">' +
+                   escapeHtml(altLabel) + ' · ' + altSize +
+               '</button>';
+    }
+
     function addResultItem(result, index) {
         var downloadExt = EXT_BY_TYPE[result.type] || '.jpg';
         var downloadName = result.name.replace(/\.[^.]+$/, '') + '-compresse' + downloadExt;
@@ -432,6 +510,11 @@
             ? formatSize(result.originalSize)
             : formatSize(result.originalSize) + ' &rarr; ' + formatSize(result.blob.size);
 
+        // Dual-format results (PNG kept + WebP offered) get a clearer primary label.
+        var primaryLabel = result.alt
+            ? (result.type === 'image/png' ? ' Télécharger le PNG' : ' Télécharger le WebP')
+            : ' Télécharger';
+
         var item = document.createElement('div');
         item.className = 'result-item';
         item.innerHTML =
@@ -443,17 +526,26 @@
                     savingsHtml +
                 '</div>' +
                 verdictHtml(result) +
+                formatChoiceHtml(result) +
             '</div>' +
             '<div class="result-actions">' +
                 '<button class="btn btn-primary btn-sm download-btn" data-index="' + index + '">' +
                     '<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2V12M9 12L5 8M9 12L13 8M2 15H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-                    ' Télécharger' +
+                    primaryLabel +
                 '</button>' +
             '</div>';
 
         item.querySelector('.download-btn').addEventListener('click', function () {
             downloadBlob(result.blob, downloadName);
         });
+
+        var altBtn = item.querySelector('.alt-download-btn');
+        if (altBtn) {
+            altBtn.addEventListener('click', function () {
+                var ext = EXT_BY_TYPE[result.alt.type] || '.webp';
+                downloadBlob(result.alt.blob, result.name.replace(/\.[^.]+$/, '') + '-compresse' + ext);
+            });
+        }
 
         resultsList.appendChild(item);
     }

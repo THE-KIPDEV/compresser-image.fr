@@ -73,8 +73,10 @@
                 <li>Illustrations avec des aplats de couleur</li>
                 <li>Images necessitant une qualite sans perte</li>
             </ul>
-            <h3>Vous avez besoin que le résultat reste un .png ?</h3>
-            <p>Cet outil ré-encode les PNG en WebP : c'est ce qui donne le meilleur gain, mais le fichier change d'extension. Si vous devez garder un vrai fichier PNG en sortie, ou si votre problème est plutôt les dimensions en pixels que le poids, passez par notre page dédiée : <a href="<?= url('/reduire-taille-png') ?>">réduire la taille d'un PNG</a>. Elle garde le format PNG, expose le nombre de couleurs de la palette (16 à 256), propose un mode « poids maximal » et détaille nos mesures de gain réelles par type d'image.</p>
+            <h3>Vous récupérez un vrai fichier .png</h3>
+            <p>Chaque PNG déposé ici ressort en PNG : l'outil écrit une palette de 256 couleurs dans le fichier (color type 3 + transparence tRNS), sans jamais changer l'extension. Sous chaque résultat, un bouton « Convertir en WebP » vous donne aussi la version WebP avec son poids exact, si vous préférez le format le plus léger pour le web. Sur un logo ou une capture d'écran, la palette suffit à faire tomber le poids ; sur une photo ou un dégradé, elle ferait grossir le fichier, alors on vous recommande le WebP et on garde le PNG d'origine intact comme repli.</p>
+            <h3>Aller plus loin : palette, poids cible, dimensions</h3>
+            <p>Pour choisir vous-même le nombre de couleurs (16 à 256), viser un poids maximal précis en Ko, ou redimensionner en pixels, passez par notre page dédiée : <a href="<?= url('/reduire-taille-png') ?>">réduire la taille d'un PNG</a>. Elle affiche la palette réellement écrite dans le fichier et détaille nos mesures de gain réelles par type d'image.</p>
         <?php elseif ($seoFormat === 'JPEG'): ?>
             <h2>Comment compresser un fichier JPEG ?</h2>
             <p>Le format JPEG est le plus utilise pour les photographies sur le web. Il offre un bon rapport qualite/taille grace a sa compression avec perte.</p>

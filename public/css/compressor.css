@@ -349,6 +349,25 @@
     line-height: 1.45;
 }
 
+/* PNG-compress: "PNG kept" note + button to grab the WebP alternative */
+.result-format-note {
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+.result-format-note code {
+    font-size: 0.72rem;
+    padding: 0 0.2em;
+    background: var(--gray-100);
+    border-radius: 3px;
+}
+
+.alt-download-btn {
+    margin-top: 0.45rem;
+}
+
 .result-actions {
     flex-shrink: 0;
 }
