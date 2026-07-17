@@ -435,9 +435,9 @@ return [
             ['Téléchargez', 'L\'outil ajuste la qualité pour rester sous la limite.'],
         ],
         'faq'         => [
-            ['Comment l\'outil atteint-il le poids exact ?', 'Il teste plusieurs niveaux de qualité et retient le plus élevé qui reste sous votre cible. La taille finale est donc inférieure ou égale au poids demandé.'],
-            ['Et si la cible est trop basse ?', 'Si même la qualité minimale dépasse la cible (image très grande), l\'outil fournit la version la plus légère possible. Réduisez d\'abord les dimensions si besoin.'],
-            ['Quels formats sont supportés ?', 'JPG et WebP se prêtent le mieux au poids cible. Un PNG est automatiquement encodé en WebP pour pouvoir viser une taille précise.'],
+            ['Comment l\'outil atteint-il le poids demandé ?', 'Par dichotomie sur la qualité : il encode l\'image jusqu\'à 8 fois en coupant à chaque essai l\'intervalle de qualité en deux, et retient la meilleure qualité qui reste sous votre cible. C\'est plus précis qu\'une réduction en pourcentage fixe, qui tombe rarement juste.'],
+            ['Et si la cible reste hors d\'atteinte ?', 'La qualité ne fait pas tout : sous 30 Ko environ, ce sont les pixels qui pèsent. Si la qualité minimale ne suffit pas, l\'outil réduit lui-même les dimensions par paliers et recommence la recherche. S\'il n\'y arrive toujours pas, il l\'affiche noir sur blanc au lieu de vous laisser croire que c\'est passé.'],
+            ['Quel format de sortie ?', 'Du JPG. C\'est le seul format à la fois réglable en poids et accepté partout : un PNG ou un WebP est donc converti, et la transparence devient du blanc.'],
         ],
     ],
 
@@ -455,9 +455,9 @@ return [
             ['Téléchargez', 'Votre image tient sous le poids demandé.'],
         ],
         'faq'         => [
-            ['Puis-je viser exactement 2 Mo ?', 'Oui, saisissez 2 Mo : l\'outil produit une image dont le poids reste inférieur ou égal à cette valeur.'],
-            ['Ko ou Mo, comment choisir ?', 'Utilisez les Mo pour les fichiers volumineux et les Ko pour les petites images. Vous pouvez changer d\'unité à tout moment.'],
-            ['La qualité reste-t-elle correcte ?', 'L\'outil garde toujours la meilleure qualité possible compatible avec le poids cible.'],
+            ['Puis-je viser exactement 2 Mo ?', 'Saisissez 2 Mo et l\'outil cherche la meilleure qualité qui tient sous cette valeur. Le poids final s\'affiche à côté de la cible, avec un verdict : vous n\'avez pas à rouvrir le fichier pour vérifier.'],
+            ['Ko ou Mo, comment choisir ?', 'Les Mo pour les fichiers volumineux, les Ko pour les petites images. Le sélecteur change d\'unité à tout moment.'],
+            ['La qualité reste-t-elle correcte ?', 'L\'outil garde la meilleure qualité compatible avec le poids cible. À l\'échelle du Mo, une photo reste très propre : c\'est sous les 50 Ko que les compromis deviennent visibles.'],
         ],
     ],
 
@@ -475,9 +475,10 @@ return [
             ['Téléchargez', 'Une image conforme à la limite des 100 Ko.'],
         ],
         'faq'         => [
-            ['L\'image fera-t-elle pile 100 Ko ?', 'Elle pèsera 100 Ko ou un peu moins : l\'outil retient la meilleure qualité qui reste sous la limite.'],
-            ['Et pour une autre limite ?', 'Changez simplement la valeur (par exemple 50 ou 200 Ko) : le principe reste le même.'],
-            ['Est-ce adapté aux photos d\'identité ?', 'Oui, c\'est un usage fréquent pour les démarches en ligne qui imposent un poids maximal.'],
+            ['L\'image fera-t-elle pile 100 Ko ?', 'Un peu moins, et c\'est voulu : viser 100,0 Ko pile ferait passer le fichier au-dessus d\'une limite définie comme « 100 Ko maximum ». L\'outil retient la meilleure qualité qui reste sous la barre — typiquement 97 à 99 Ko — et affiche le poids obtenu.'],
+            ['Comment l\'outil trouve-t-il le bon réglage ?', 'Il ré-encode l\'image jusqu\'à 8 fois en dichotomie sur la qualité, chaque essai divisant par deux l\'intervalle restant. Si la qualité seule ne suffit pas, il réduit les dimensions et recommence. Tout se passe dans votre navigateur, l\'image ne part sur aucun serveur.'],
+            ['Et pour une autre limite ?', 'Changez la valeur (50, 200 Ko…) : le principe reste le même.'],
+            ['Est-ce adapté aux photos d\'identité ?', 'Oui, c\'est l\'usage le plus fréquent. La sortie est en JPG et les métadonnées EXIF, GPS compris, ne sont pas conservées.'],
         ],
     ],
 
@@ -495,9 +496,9 @@ return [
             ['Téléchargez', 'Une image conforme à la limite des 20 Ko.'],
         ],
         'faq'         => [
-            ['20 Ko est-il toujours atteignable ?', 'Pour une grande photo, pas toujours sans réduire d\'abord les dimensions. L\'outil fournit alors la version la plus légère possible.'],
-            ['Comment maximiser mes chances ?', 'Réduisez la taille en pixels de l\'image avant la compression : moins de pixels, plus facile d\'atteindre un poids très bas.'],
-            ['La qualité sera-t-elle suffisante ?', 'À 20 Ko, la qualité dépend des dimensions. Pour une vignette ou une petite photo, le rendu reste tout à fait correct.'],
+            ['20 Ko est-il toujours atteignable ?', 'Sur une grande photo, la qualité seule n\'y suffit jamais. L\'outil réduit alors les dimensions par paliers jusqu\'à tenir sous les 20 Ko. Il s\'arrête à 200 px de côté : en dessous, on abîme l\'image plus qu\'on ne gagne de poids. Si la cible reste hors d\'atteinte, il vous le dit.'],
+            ['Dois-je redimensionner avant ?', 'Ce n\'est plus nécessaire, l\'outil s\'en charge et vous indique les dimensions retenues. Recadrer vous-même reste utile si vous voulez choisir précisément ce qui est gardé.'],
+            ['La qualité sera-t-elle suffisante ?', 'À 20 Ko, soyons clairs : sur une photo pleine définition, ça se voit. Pour une vignette, un logo ou une petite photo, le rendu reste tout à fait correct.'],
         ],
     ],
 
@@ -516,7 +517,7 @@ return [
         ],
         'faq'         => [
             ['1 Mo, est-ce suffisant pour une belle photo ?', 'Oui, largement : à 1 Mo une photo reste très détaillée. C\'est un excellent compromis poids/qualité.'],
-            ['L\'image dépassera-t-elle 1 Mo ?', 'Non : l\'outil garantit un poids inférieur ou égal à la cible que vous indiquez.'],
+            ['L\'image dépassera-t-elle 1 Mo ?', 'Dans la quasi-totalité des cas, non. L\'outil cherche la meilleure qualité qui tient sous 1 Mo, et réduit les dimensions si la qualité seule n\'y suffit pas. Le poids final est affiché avec un verdict clair : si la cible n\'est pas tenue, c\'est écrit, jamais masqué.'],
             ['Puis-je viser 2 ou 5 Mo à la place ?', 'Oui, changez la valeur ou l\'unité selon la limite à respecter.'],
         ],
     ],
@@ -669,17 +670,20 @@ return [
         'h1'          => 'Réduire la taille d\'une photo d\'identité',
         'subtitle'    => 'Atteignez le poids en Ko exigé par les démarches en ligne.',
         'widget'      => ['mode' => 'target', 'default' => 100, 'unit' => 'kb'],
-        'intro'       => '<p>De nombreuses démarches administratives en ligne imposent une photo d\'identité sous un poids précis (souvent 50 à 100 Ko). Indiquez la taille demandée, l\'outil ajuste automatiquement la qualité pour respecter la limite.</p>
-                          <p>Astuce : si la photo est très grande, redimensionnez-la d\'abord, puis appliquez la taille cible en Ko.</p>',
+        'intro'       => '<p>De nombreuses démarches administratives en ligne imposent une photo d\'identité sous un poids précis. Indiquez la taille demandée par le formulaire : l\'outil ajuste la qualité, puis les dimensions si nécessaire, et affiche le poids obtenu face à votre cible.</p>
+                          <p>Deux points qui font refuser un fichier, et qu\'on traite ici. La sortie est en <strong>JPG</strong>, jamais en WebP : ce format récent est rejeté par la plupart des formulaires officiels. Et le ré-encodage efface les données EXIF, dont les coordonnées GPS que votre téléphone a inscrites dans la photo — elles n\'ont rien à faire dans un dossier administratif.</p>
+                          <p>Le poids n\'est qu\'un des critères. Un formulaire impose aussi des dimensions en pixels et un cadrage du visage : vérifiez la consigne affichée à côté du champ de dépôt, elle prime sur tout ce qu\'on peut vous dire ici.</p>',
         'how'         => [
             ['Déposez la photo', 'Votre photo d\'identité numérique.'],
             ['Indiquez le poids en Ko', 'Celui demandé par le formulaire.'],
             ['Téléchargez', 'Une photo conforme à la limite imposée.'],
         ],
         'faq'         => [
-            ['Quel poids pour une photo d\'identité en ligne ?', 'Cela dépend du service, mais 50 à 100 Ko est une fourchette fréquente. Reportez-vous à la consigne exacte du formulaire.'],
-            ['Et si je n\'arrive pas à descendre assez bas ?', 'Réduisez d\'abord les dimensions en pixels de la photo, puis appliquez la taille cible : il sera bien plus facile d\'atteindre un poids très faible.'],
-            ['Le visage restera-t-il net ?', 'Oui, dans les limites du poids demandé. Pour une photo d\'identité, le rendu reste tout à fait exploitable.'],
+            ['Quel poids pour une photo d\'identité en ligne ?', 'Il n\'y a pas de valeur universelle : chaque service fixe la sienne. Prenez le chiffre affiché sur le formulaire au moment du dépôt et saisissez-le comme cible. On préfère ne pas publier de seuil « type » ici : un chiffre approximatif vous ferait refaire la démarche pour rien.'],
+            ['Et si je n\'arrive pas à descendre assez bas ?', 'L\'outil réduit lui-même les dimensions quand la qualité ne suffit plus, jusqu\'à 200 px de côté. S\'il n\'atteint toujours pas la cible, il l\'affiche au lieu de vous livrer un fichier trop lourd sans rien dire.'],
+            ['Ma photo va-t-elle changer de format ?', 'Si vous déposez un PNG ou un WebP, oui : la sortie est en JPG, et le fichier téléchargé porte l\'extension .jpg. C\'est voulu, un .webp étant refusé par la plupart des téléservices.'],
+            ['La géolocalisation est-elle retirée ?', 'Oui. L\'image est redessinée puis ré-encodée dans votre navigateur, ce qui laisse les métadonnées EXIF de côté : ni GPS, ni date, ni modèle d\'appareil dans le fichier final.'],
+            ['Le visage restera-t-il net ?', 'Dans les limites du poids demandé. À 100 Ko le rendu reste exploitable ; si le formulaire descend beaucoup plus bas et que l\'outil a dû réduire les dimensions, vérifiez le résultat avant de l\'envoyer.'],
         ],
     ],
 
@@ -697,9 +701,10 @@ return [
             ['Téléchargez', 'Un fichier conforme, prêt à téléverser.'],
         ],
         'faq'         => [
-            ['Quelle est la limite de poids sur l\'ANTS ?', 'Elle varie selon le type de justificatif (souvent autour de 1 Mo par fichier). Vérifiez la consigne affichée lors du dépôt et réglez la cible en conséquence.'],
-            ['Le document restera-t-il lisible ?', 'Oui : l\'outil conserve la meilleure qualité possible compatible avec le poids demandé, ce qui suffit pour un justificatif.'],
-            ['Puis-je traiter plusieurs documents ?', 'Oui, déposez-les ensemble : chaque fichier est compressé pour respecter la limite.'],
+            ['Quelle est la limite de poids sur l\'ANTS ?', 'Elle dépend du justificatif et de la page de dépôt, et elle bouge. Plutôt que d\'avancer un chiffre qui vous ferait recommencer la démarche, on vous renvoie à celui affiché à côté du bouton de téléversement : c\'est le seul qui fasse foi. Reportez-le dans la case « poids maximal souhaité ».'],
+            ['Le document restera-t-il lisible ?', 'L\'outil garde la meilleure qualité qui tient sous le poids demandé, ce qui suffit largement pour un justificatif. Un point de vigilance : sur un scan de document, le texte est ce qui se dégrade en premier. Relisez les petits caractères avant d\'envoyer.'],
+            ['Puis-je traiter plusieurs documents ?', 'Oui, jusqu\'à 10 fichiers en une fois. Chacun est compressé pour respecter la limite et affiche son propre verdict.'],
+            ['Mon scan PNG va-t-il rester en PNG ?', 'Non, la sortie est en JPG : viser un poids précis suppose un format réglable en qualité. C\'est aussi le format que ces téléservices attendent, avec le PDF.'],
         ],
     ],
 

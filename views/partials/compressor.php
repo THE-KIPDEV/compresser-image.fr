@@ -47,7 +47,8 @@ $widgetMode   = $widgetConfig['mode'] ?? 'compress';
                             <option value="mb"<?= (($widgetConfig['unit'] ?? 'kb') === 'mb') ? ' selected' : '' ?>>Mo</option>
                         </select>
                     </div>
-                    <p class="compression-hint">La qualité est ajustée automatiquement pour atteindre ce poids.</p>
+                    <p class="compression-hint">La qualité est ajustée automatiquement, puis les dimensions si le poids demandé l'exige. Chaque fichier affiche son poids final et un verdict par rapport à la cible.</p>
+                    <p class="compression-hint">Sortie en <strong>JPG</strong> (seul format à la fois réglable en poids et accepté partout) : un PNG ou un WebP est converti, et la transparence est remplacée par du blanc. Les données EXIF, dont la géolocalisation, ne sont pas conservées.</p>
                 </div>
             <?php elseif ($widgetMode === 'convert'): ?>
                 <p class="convert-note">Format de sortie : <strong><?= e($widgetConfig['toLabel'] ?? 'WebP') ?></strong> — vos images seront converties automatiquement.</p>

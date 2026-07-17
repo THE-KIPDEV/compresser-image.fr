@@ -232,12 +232,24 @@
         return Math.round(v * mult);
     }
 
-    // Binary-search the quality to fit the encoded image under the target size.
-    async function encodeToTarget(canvas, type) {
-        if (type === 'image/png') type = 'image/webp'; // PNG has no quality knob
-        var target = targetBytes();
-        if (!target) return canvasEncode(canvas, type, 0.8);
+    // Draw the source image into a fresh canvas at `scale` of the target dimensions.
+    // Transparency is flattened onto white when the output is JPEG.
+    function renderAt(img, w, h, scale, type) {
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(w * scale));
+        canvas.height = Math.max(1, Math.round(h * scale));
+        var ctx = canvas.getContext('2d');
+        if (type === 'image/jpeg') {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas;
+    }
 
+    // Binary-search the quality: keep the highest one that still fits under `target`.
+    // Returns null when even quality 0.05 stays above the target at these dimensions.
+    async function searchQuality(canvas, type, target) {
         var lo = 0.05, hi = 0.95, best = null;
         for (var i = 0; i < 8; i++) {
             var mid = (lo + hi) / 2;
@@ -245,8 +257,40 @@
             if (!b) break;
             if (b.size <= target) { best = b; lo = mid; } else { hi = mid; }
         }
-        if (!best) best = await canvasEncode(canvas, type, 0.05); // can't reach target → smallest
         return best;
+    }
+
+    // Target mode. Quality alone can't reach a low target on a big photo — below
+    // ~30 Ko the pixels are the lever, not the quality. So when the search fails at
+    // full size, step the dimensions down and search again, instead of returning a
+    // quality-5 file that busts the target anyway.
+    // Returns { blob, target, width, height, scaled, over }.
+    async function encodeToTarget(img, w, h, type) {
+        var target = targetBytes();
+        if (!target) {
+            return { blob: await canvasEncode(renderAt(img, w, h, 1, type), type, 0.8), target: 0, width: w, height: h };
+        }
+
+        var SCALES = [1, 0.75, 0.55, 0.4, 0.28, 0.2];
+        var fallback = null, fw = w, fh = h;
+
+        for (var s = 0; s < SCALES.length; s++) {
+            var cw = Math.max(1, Math.round(w * SCALES[s]));
+            var ch = Math.max(1, Math.round(h * SCALES[s]));
+            // Under 200 px a downscale destroys more than it saves — stop there.
+            if (s > 0 && (cw < 200 || ch < 200)) break;
+
+            var canvas = renderAt(img, w, h, SCALES[s], type);
+            var best = await searchQuality(canvas, type, target);
+            if (best) {
+                return { blob: best, target: target, width: cw, height: ch, scaled: SCALES[s] < 1 };
+            }
+            fallback = await canvasEncode(canvas, type, 0.05);
+            fw = cw; fh = ch;
+        }
+
+        // Target genuinely out of reach: return the smallest we produced and say so.
+        return { blob: fallback, target: target, width: fw, height: fh, scaled: fw < w, over: true };
     }
 
     function compressImage(file, quality) {
@@ -255,9 +299,6 @@
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
                     let width = img.naturalWidth;
                     let height = img.naturalHeight;
 
@@ -277,14 +318,17 @@
                         width = Math.round(width * ratio);
                         height = Math.round(height * ratio);
                     }
-                    canvas.width = width;
-                    canvas.height = height;
 
                     // Decide output format
                     var outputType = file.type;
                     var outputQuality = quality;
                     if (FORCE_OUTPUT) {
                         outputType = FORCE_OUTPUT; // conversion pages
+                    } else if (MODE === 'target' && file.type !== 'image/jpeg') {
+                        // Aiming at a byte budget needs a quality knob, so PNG can't stay PNG.
+                        // JPEG rather than WebP: these pages are used for admin uploads
+                        // (ANTS, dossiers), and a .webp gets refused by most of those forms.
+                        outputType = 'image/jpeg';
                     } else if (MODE === 'resize') {
                         // Resize keeps the original format at high quality (intent = dimensions, not format)
                         outputQuality = 0.92;
@@ -296,26 +340,29 @@
                         }
                     }
 
-                    // Flatten transparency onto white when the output is JPEG
-                    if (outputType === 'image/jpeg') {
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(0, 0, width, height);
-                    }
-                    ctx.drawImage(img, 0, 0, width, height);
-
                     try {
-                        var blob = (MODE === 'target')
-                            ? await encodeToTarget(canvas, outputType)
-                            : await canvasEncode(canvas, outputType, outputQuality);
+                        var blob, fit = null;
+                        if (MODE === 'target') {
+                            fit = await encodeToTarget(img, width, height, outputType);
+                            blob = fit.blob;
+                        } else {
+                            blob = await canvasEncode(renderAt(img, width, height, 1, outputType), outputType, outputQuality);
+                        }
                         if (!blob) { reject(new Error('Erreur de compression')); return; }
 
+                        // Already under the requested budget and re-encoding gains nothing:
+                        // hand back the untouched original rather than a heavier "compressed" file.
+                        var alreadyFits = MODE === 'target' && fit && fit.target
+                            && file.size <= fit.target && blob.size >= file.size;
+
                         // Plain compression must never return a bigger file.
-                        // (Conversion/target modes always return the produced file.)
-                        if (MODE === 'compress' && !FORCE_OUTPUT && blob.size >= file.size) {
+                        // (Conversion mode always returns the produced file.)
+                        if (alreadyFits || (MODE === 'compress' && !FORCE_OUTPUT && blob.size >= file.size)) {
                             resolve({
                                 name: file.name, originalSize: file.size, blob: file,
                                 thumbUrl: e.target.result, compressedUrl: URL.createObjectURL(file),
                                 type: file.type, unchanged: true,
+                                fit: alreadyFits ? { target: fit.target, width: width, height: height } : null,
                             });
                             return;
                         }
@@ -323,6 +370,8 @@
                             name: file.name, originalSize: file.size, blob: blob,
                             thumbUrl: e.target.result, compressedUrl: URL.createObjectURL(blob),
                             type: outputType,
+                            fit: fit,
+                            converted: outputType !== file.type,
                         });
                     } catch (err) { reject(err); }
                 };
@@ -337,6 +386,33 @@
     // ───── UI ─────
 
     var EXT_BY_TYPE = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+    var LABEL_BY_TYPE = { 'image/jpeg': 'JPG', 'image/png': 'PNG', 'image/webp': 'WebP' };
+
+    // Target mode: say plainly whether the file respects the requested budget,
+    // and what had to change to get there (dimensions, format).
+    function verdictHtml(result) {
+        var fit = result.fit;
+        if (!fit || !fit.target) return '';
+
+        var got = formatSize(result.blob.size);
+        var aim = formatSize(fit.target);
+        var notes = [];
+        if (fit.scaled) notes.push('redimensionnée en ' + fit.width + ' × ' + fit.height + ' px');
+        if (result.converted) notes.push('convertie en ' + (LABEL_BY_TYPE[result.type] || 'JPG'));
+        var noteHtml = notes.length
+            ? '<div class="result-verdict-note">' + escapeHtml(notes.join(' · ')) + '</div>'
+            : '';
+
+        if (fit.over) {
+            return '<div class="result-verdict result-verdict-over">' +
+                   '<strong>' + got + '</strong> — au-dessus de la cible de ' + aim +
+                   '</div>' +
+                   '<div class="result-verdict-note">Même à la qualité minimale et en ' + fit.width + ' × ' + fit.height + ' px, cette image ne descend pas sous ' + aim + '. Recadrez-la ou visez un poids un peu plus haut.</div>';
+        }
+        return '<div class="result-verdict result-verdict-ok">' +
+               '<strong>' + got + '</strong> / cible ' + aim + ' ✓' +
+               '</div>' + noteHtml;
+    }
 
     function addResultItem(result, index) {
         var downloadExt = EXT_BY_TYPE[result.type] || '.jpg';
@@ -366,6 +442,7 @@
                     '<span>' + sizeText + '</span>' +
                     savingsHtml +
                 '</div>' +
+                verdictHtml(result) +
             '</div>' +
             '<div class="result-actions">' +
                 '<button class="btn btn-primary btn-sm download-btn" data-index="' + index + '">' +

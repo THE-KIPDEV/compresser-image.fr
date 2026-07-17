@@ -327,6 +327,28 @@
     background: var(--gray-100);
 }
 
+/* Target mode: pass/fail against the requested weight */
+.result-verdict {
+    margin-top: 0.35rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+.result-verdict-ok {
+    color: var(--success);
+}
+
+.result-verdict-over {
+    color: var(--error);
+}
+
+.result-verdict-note {
+    margin-top: 0.15rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
 .result-actions {
     flex-shrink: 0;
 }
