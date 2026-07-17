@@ -51,6 +51,7 @@ if (!function_exists('kipdev_network_links')) {
             ['domain' => 'creer-qrcode.fr', 'label' => 'Créer un QR Code', 'desc' => 'QR codes dynamiques', 'category' => 'dev'],
             ['domain' => 'signature-email-pro.com', 'label' => 'Signature Email Pro', 'desc' => 'Signatures email pro', 'category' => 'dev'],
             ['domain' => 'convertir-fichier.fr', 'label' => 'Convertir un fichier', 'desc' => 'Conversion de fichiers', 'category' => 'dev'],
+            ['domain' => 'lequel-choisir.com', 'label' => 'Lequel choisir', 'desc' => "Comparatifs 'A ou B' calculés", 'category' => 'conso', 'flagship' => true],
         ];
     }
 
@@ -67,6 +68,15 @@ if (!function_exists('kipdev_network_links')) {
             $seen[$s['domain']] = true;
             $out[] = $s;
             if (count($out) >= $limit) break;
+        }
+        if ($currentDomain !== 'lequel-choisir.com') {
+            $promoted = null;
+            foreach ($sites as $s) { if ($s['domain'] === 'lequel-choisir.com') { $promoted = $s; break; } }
+            if ($promoted) {
+                $out = array_values(array_filter($out, fn($s) => $s['domain'] !== 'lequel-choisir.com'));
+                array_unshift($out, $promoted);
+                $out = array_slice($out, 0, $limit);
+            }
         }
         return $out;
     }
