@@ -22,6 +22,7 @@
             <a href="<?= url('/compresser-png') ?>" class="nav-link">PNG</a>
             <a href="<?= url('/compresser-jpeg') ?>" class="nav-link">JPEG</a>
             <a href="<?= url('/compresser-webp') ?>" class="nav-link">WebP</a>
+            <a href="<?= url('/convertir-heic-en-jpg') ?>" class="nav-link">HEIC → JPG</a>
         </nav>
 
         <div class="nav-actions">
@@ -50,6 +51,7 @@
         <a href="<?= url('/compresser-png') ?>">PNG</a>
         <a href="<?= url('/compresser-jpeg') ?>">JPEG</a>
         <a href="<?= url('/compresser-webp') ?>">WebP</a>
+        <a href="<?= url('/convertir-heic-en-jpg') ?>">Convertir HEIC en JPG</a>
         <div class="nav-mobile-actions">
             <?php if (isLoggedIn()): ?>
                 <a href="<?= url('/tableau-de-bord') ?>" class="btn btn-primary">Tableau de bord</a>

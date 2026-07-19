@@ -82,6 +82,58 @@ class SeoController
         view('seo/reduire-taille-png', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs', 'faq'));
     }
 
+    /**
+     * /convertir-heic-en-jpg — seul cluster que le site ne pouvait pas servir :
+     * le sélecteur refusait les HEIC (photos iPhone). Page dédiée + décodage HEIC
+     * 100 % navigateur (public/js/heic-decode.js → libheif WASM), sortie JPG.
+     */
+    public function convertirHeicJpg(): void
+    {
+        $pageTitle       = 'Convertir HEIC en JPG en ligne — sans uploader vos photos';
+        $pageDescription = 'Convertissez vos photos iPhone HEIC en JPG directement dans le navigateur, rien n\'est envoyé sur un serveur. EXIF et géolocalisation supprimés, lot de 10, gratuit et sans inscription.';
+        $extraCss        = ['home.css', 'compressor.css', 'seo.css'];
+        // heic-decode.js charge libheif (WASM) à la demande, au 1er HEIC déposé.
+        $extraJs         = ['png8-encoder.js', 'heic-decode.js', 'compressor.js'];
+
+        // FAQ affichée en HTML + reprise en JSON-LD FAQPage par la vue.
+        $faq = [
+            [
+                'Pourquoi mon iPhone enregistre-t-il en HEIC et pas en JPG ?',
+                'Depuis iOS 11 (2017), Apple stocke les photos en HEIC : c\'est un conteneur qui compresse avec le codec HEVC (H.265), le même que la vidéo 4K. À qualité égale, une photo HEIC pèse environ deux fois moins qu\'un JPEG. Le revers, c\'est la compatibilité : Windows, Android et beaucoup de sites ne savent pas ouvrir un .heic. Vous pouvez d\'ailleurs demander à l\'iPhone de photographier directement en JPG (Réglages → Appareil photo → Formats → « Le plus compatible »), mais ça ne convertit pas les photos déjà prises.',
+            ],
+            [
+                'La conversion garde-t-elle la qualité de la photo ?',
+                'Oui. On décode le HEIC à sa résolution d\'origine (une photo d\'iPhone récent fait autour de 4032 × 3024 px, soit 12 mégapixels) puis on ré-encode en JPG à qualité 90 %. À l\'œil, aucune différence. Un JPG reste plus gros qu\'un HEIC à qualité identique, c\'est le prix de la compatibilité universelle : comptez en gros deux fois le poids du HEIC de départ.',
+            ],
+            [
+                'Mes photos sont-elles envoyées sur un serveur ?',
+                'Non, et c\'est toute la différence avec Convertio, iLoveIMG ou heictojpg. Le décodage HEIC tourne dans votre navigateur, via une version de la bibliothèque libheif compilée en WebAssembly. Aucun octet de vos photos ne part sur Internet. Preuve concrète : chargez la page, coupez le Wi-Fi, déposez vos HEIC — la conversion marche toujours.',
+            ],
+            [
+                'Les données EXIF et la géolocalisation sont-elles conservées ?',
+                'Non, et sur une photo iPhone c\'est plutôt une bonne nouvelle. Un HEIC embarque la date, le modèle d\'appareil et surtout les coordonnées GPS de l\'endroit exact où la photo a été prise. Notre conversion passe par un canvas, qui ne recopie que les pixels : le JPG produit ne contient plus aucune métadonnée. Vous pouvez partager la photo sans diffuser l\'adresse de votre domicile.',
+            ],
+            [
+                'Puis-je convertir plusieurs HEIC d\'un coup ?',
+                'Oui, jusqu\'à 10 photos par lot, avec un bouton « Tout télécharger ». La limite n\'est pas commerciale : le décodage HEVC est gourmand et tout se passe dans la mémoire de votre onglet. Au-delà, un téléphone d\'entrée de gamme commence à ramer. Pour une pellicule entière, procédez par paquets de 10.',
+            ],
+            [
+                'Quels logiciels lisent le JPG une fois converti ?',
+                'Tous. Le JPEG est normalisé depuis 1992 (ISO/IEC 10918-1) et il n\'existe aucun système, site ou imprimante qui ne le lise pas : Windows, Android, un formulaire administratif, une pièce jointe d\'e-mail, un site de petites annonces. C\'est exactement pour ça qu\'on convertit vers le JPG plutôt que de laisser vos photos en HEIC.',
+            ],
+            [
+                'Faut-il installer une application ou créer un compte ?',
+                'Ni l\'un ni l\'autre. La page est l\'outil : vous déposez, ça convertit, vous téléchargez. Gratuit, sans inscription, sans filigrane sur vos images.',
+            ],
+            [
+                'HEIC trop lourd à envoyer : je peux aussi le compresser ?',
+                'Oui, et c\'est le vrai intérêt ici. Un HEIC recraché en JPG peut peser 3 ou 4 Mo, trop pour un formulaire ou un mail. Une fois la photo en JPG, passez-la dans notre outil de <a href="' . url('/compresser-image-100-ko') . '">poids maximal en Ko</a> pour viser une taille précise (par exemple sous 500 Ko), ou par la page <a href="' . url('/reduire-poids-image') . '">réduire le poids d\'une image</a>.',
+            ],
+        ];
+
+        view('seo/convertir-heic', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs', 'faq'));
+    }
+
     public function reduireTaille(): void
     {
         $pageTitle = 'Réduire la taille d\'une image en ligne — Gratuit et rapide';
@@ -182,6 +234,7 @@ class SeoController
             '/compresser-webp'               => ['monthly', '0.9'],
             '/reduire-taille-image'          => ['monthly', '0.9'],
             '/reduire-taille-png'            => ['monthly', '0.9'],
+            '/convertir-heic-en-jpg'         => ['monthly', '0.9'],
             '/optimiser-image-web'           => ['monthly', '0.9'],
         ];
         // Programmatic SEO landing pages.

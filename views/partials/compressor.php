@@ -8,6 +8,7 @@
 $widgetHint   = $widgetHint ?? 'PNG, JPEG, WebP — Max 10 Mo par image (50 Mo en Pro)';
 $widgetConfig = $widgetConfig ?? [];
 $widgetMode   = $widgetConfig['mode'] ?? 'compress';
+$widgetAccept = $widgetConfig['accept'] ?? 'image/png,image/jpeg,image/webp';
 ?>
 <?php if (!empty($widgetConfig)): ?>
 <script>window.COMPRESSOR_CONFIG = <?= json_encode($widgetConfig, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
@@ -26,7 +27,7 @@ $widgetMode   = $widgetConfig['mode'] ?? 'compress';
                 </div>
                 <p class="drop-zone-text"><strong>Glissez vos images ici</strong> ou cliquez pour sélectionner</p>
                 <p class="drop-zone-hint"><?= e($widgetHint) ?></p>
-                <input type="file" id="fileInput" multiple accept="image/png,image/jpeg,image/webp" hidden>
+                <input type="file" id="fileInput" multiple accept="<?= e($widgetAccept) ?>" hidden>
             </div>
             <div class="drop-zone-hover">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 8V40M8 24H40" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>

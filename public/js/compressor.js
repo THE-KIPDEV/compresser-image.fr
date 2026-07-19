@@ -19,6 +19,10 @@
 
     if (!dropZone) return;
 
+    const dropTextEl = dropZone.querySelector('.drop-zone-text');
+    const dropTextDefault = dropTextEl ? dropTextEl.innerHTML : '';
+    function setDropText(html) { if (dropTextEl) dropTextEl.innerHTML = html; }
+
     let selectedFiles = [];
     let compressedFiles = [];
     let currentQuality = 90; // default: light
@@ -62,26 +66,68 @@
         handleFiles(e.dataTransfer.files);
     });
 
-    function handleFiles(files) {
+    async function handleFiles(files) {
         const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        selectedFiles = Array.from(files).filter(f => validTypes.includes(f.type));
+        const maxSize = 10 * 1024 * 1024;
+        const incoming = Array.from(files);
 
-        if (selectedFiles.length === 0) {
-            showNotification('Sélectionnez des images PNG, JPEG ou WebP.', 'error');
+        let standard = incoming.filter(f => validTypes.includes(f.type));
+
+        // HEIC (photos iPhone) : décodés en amont vers un PNG puis traités comme
+        // n'importe quelle image. Uniquement si la page a chargé le décodeur
+        // (heic-decode.js) — les autres pages gardent le comportement d'origine.
+        const heicList = window.HEIC
+            ? incoming.filter(f => window.HEIC.isHeic(f) && !validTypes.includes(f.type))
+            : [];
+
+        if (standard.length === 0 && heicList.length === 0) {
+            const heicRejected = !window.HEIC && incoming.some(f => /\.(heic|heif)$/i.test(f.name || ''));
+            showNotification(
+                heicRejected
+                    ? 'Les HEIC ne se convertissent que depuis la page « Convertir HEIC en JPG ».'
+                    : 'Sélectionnez des images PNG, JPEG ou WebP.',
+                'error'
+            );
             return;
         }
 
-        const maxSize = 10 * 1024 * 1024;
-        const tooBig = selectedFiles.filter(f => f.size > maxSize);
+        // Cap de taille : sur les fichiers standards ET les HEIC d'origine (petits).
+        // Le PNG décodé depuis un HEIC est exempté : un HEIC de 2 Mo se décompresse
+        // en plusieurs Mo de pixels bruts, c'est normal, pas un fichier « trop lourd ».
+        const tooBig = standard.filter(f => f.size > maxSize);
         if (tooBig.length > 0) {
             showNotification(tooBig.length + ' fichier(s) trop volumineux (> 10 Mo), ignorés.', 'warning');
-            selectedFiles = selectedFiles.filter(f => f.size <= maxSize);
+            standard = standard.filter(f => f.size <= maxSize);
+        }
+        let heicOk = heicList.filter(f => f.size <= maxSize);
+        if (heicOk.length < heicList.length) {
+            showNotification((heicList.length - heicOk.length) + ' HEIC trop volumineux (> 10 Mo), ignorés.', 'warning');
         }
 
-        if (selectedFiles.length > 10) {
-            showNotification('Max 10 images en gratuit. Les suivantes sont ignorées.', 'warning');
-            selectedFiles = selectedFiles.slice(0, 10);
+        // Décodage HEIC → PNG, entièrement dans l'onglet (rien n'est envoyé).
+        if (heicOk.length > 0) {
+            setDropText('<strong>Décodage HEIC…</strong> vos photos restent sur votre appareil');
+            for (let i = 0; i < heicOk.length; i++) {
+                try {
+                    standard.push(await window.HEIC.toPng(heicOk[i]));
+                } catch (err) {
+                    showNotification('« ' + heicOk[i].name +' » : ' + (err && err.message ? err.message : 'décodage HEIC impossible'), 'error');
+                }
+            }
+            setDropText(dropTextDefault);
         }
+
+        if (standard.length === 0) {
+            showNotification('Aucune image exploitable.', 'error');
+            return;
+        }
+
+        if (standard.length > 10) {
+            showNotification('Max 10 images en gratuit. Les suivantes sont ignorées.', 'warning');
+            standard = standard.slice(0, 10);
+        }
+
+        selectedFiles = standard;
 
         // Show previews
         showPreviews();
