@@ -468,7 +468,7 @@ return [
         'subtitle'    => 'Atteignez la limite des 100 Ko sans tâtonner.',
         'widget'      => ['mode' => 'target', 'default' => 100, 'unit' => 'kb'],
         'intro'       => '<p>La limite de 100 Ko revient souvent sur les formulaires administratifs et les sites d\'inscription. Indiquez 100 Ko comme cible : l\'outil ajuste la qualité pour que votre image passe sous ce poids du premier coup.</p>
-                          <p>Vous pouvez modifier la valeur si votre limite est différente (50, 200 Ko…).</p>',
+                          <p>Vous pouvez modifier la valeur si votre limite est différente : voyez par exemple notre page dédiée pour <a href="' . url('/compresser-image-50-ko') . '">compresser une image en 50 Ko</a>, ou saisissez 200 Ko, 300 Ko…</p>',
         'how'         => [
             ['Déposez l\'image', 'PNG, JPG ou WebP.'],
             ['Cible : 100 Ko', 'Déjà pré-réglée, modifiable si besoin.'],
@@ -489,7 +489,7 @@ return [
         'subtitle'    => 'Pour les formulaires les plus stricts, descendez jusqu\'à 20 Ko.',
         'widget'      => ['mode' => 'target', 'default' => 20, 'unit' => 'kb'],
         'intro'       => '<p>Certaines plateformes très restrictives n\'acceptent que des images de 20 Ko, voire moins. Indiquez 20 Ko comme cible : l\'outil pousse la compression au niveau nécessaire pour respecter cette limite.</p>
-                          <p>Pour une cible aussi basse, mieux vaut partir d\'une image déjà réduite en dimensions.</p>',
+                          <p>Pour une cible aussi basse, mieux vaut partir d\'une image déjà réduite en dimensions. Si 20 Ko est trop juste pour votre image, une limite un peu plus confortable comme <a href="' . url('/compresser-image-50-ko') . '">50 Ko</a> laisse davantage de netteté.</p>',
         'how'         => [
             ['Déposez une petite image', 'Idéalement déjà redimensionnée.'],
             ['Cible : 20 Ko', 'Pré-réglée, modifiable selon votre limite.'],

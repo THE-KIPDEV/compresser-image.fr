@@ -154,6 +154,114 @@ class SeoController
         view('seo/optimiser-web', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs'));
     }
 
+    /**
+     * /compresser-image-50-ko — page cible-poids manquante de la série (20/100 Ko, 1 Mo).
+     * Réutilise le compresseur générique en mode « poids cible » (compressor.js),
+     * pré-réglé sur 50 Ko, sortie JPG.
+     */
+    public function compresserImage50Ko(): void
+    {
+        $pageTitle       = 'Compresser une image en 50 Ko — Outil gratuit en ligne';
+        $pageDescription = 'Compressez une image sous 50 Ko en ligne gratuitement. Cible pré-réglée, qualité puis dimensions ajustées automatiquement. Idéal photo d\'identité, avatar, formulaire.';
+        $extraCss        = ['home.css', 'compressor.css', 'seo.css', 'png-reducer.css'];
+        $extraJs         = ['png8-encoder.js', 'compressor.js'];
+
+        $faq = [
+            [
+                'Peut-on rester net à 50 Ko ?',
+                'Cela dépend entièrement des dimensions. En dessous de ~600 px de côté (avatar, photo d\'identité de 413 × 531 px, vignette), oui : 50 Ko suffisent pour un rendu impeccable. Sur une photo de smartphone en pleine définition laissée à 4000 px, non : à ce débit, la qualité JPG s\'effondre. La netteté à 50 Ko se gagne en réduisant d\'abord les pixels, pas en forçant la compression.',
+            ],
+            [
+                'Faut-il redimensionner en plus de compresser ?',
+                'Sur une grande image, oui, et c\'est même l\'étape décisive. Le poids d\'une photo varie avec sa surface : diviser la largeur par deux divise le nombre de pixels par quatre. Aucune baisse de qualité n\'approche ce résultat. L\'outil déclenche ce redimensionnement tout seul quand la qualité seule ne fait pas passer l\'image sous 50 Ko, et vous indique les dimensions retenues.',
+            ],
+            [
+                'Quel format pour le plus petit poids ?',
+                'Pour une photo, le JPG — c\'est la sortie de cet outil, car c\'est le seul format à la fois réglable en poids et accepté partout. Le WebP serait 25 à 35 % plus léger à qualité égale, mais beaucoup de formulaires administratifs le refusent encore. Le PNG est le pire choix pour une photo : à 50 Ko sur une image en nuances continues, il n\'a quasiment aucune chance.',
+            ],
+            [
+                'L\'image fera-t-elle exactement 50 Ko ?',
+                'Un peu moins, et c\'est voulu : une limite écrite « 50 Ko maximum » refuse un fichier de 50,0 Ko pile. L\'outil retient la meilleure qualité qui reste sous la barre — typiquement 47 à 49 Ko — et affiche le poids obtenu avec un verdict. Si la cible reste hors d\'atteinte, il l\'écrit clairement au lieu de vous livrer un fichier trop lourd.',
+            ],
+            [
+                'Mes fichiers sont-ils envoyés sur un serveur ?',
+                'Non. Toute la compression se fait dans votre navigateur. Les métadonnées EXIF, dont la géolocalisation que votre téléphone inscrit dans la photo, ne sont pas conservées dans le JPG produit.',
+            ],
+        ];
+
+        view('seo/compresser-50ko', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs', 'faq'));
+    }
+
+    /**
+     * /reduire-taille-png-sans-perte — angle « lossless » : le PNG est déjà sans perte.
+     * Réutilise l\'encodeur PNG-8 (png-reducer.js) via la partial png-tool, sortie PNG.
+     */
+    public function reduireTaillePngSansPerte(): void
+    {
+        $pageTitle       = 'Réduire la taille d\'un PNG sans perte — vrai lossless ou pas ?';
+        $pageDescription = 'Le PNG est déjà sans perte : ce que « réduire sans perte » veut vraiment dire. Optimisation lossless réelle vs quantification, gains chiffrés, transparence conservée. Gratuit, sans upload.';
+        $extraCss        = ['home.css', 'compressor.css', 'seo.css', 'png-reducer.css'];
+        $extraJs         = ['png-reducer.js'];
+
+        $faq = [
+            [
+                'La transparence est-elle conservée ?',
+                'Oui. L\'outil écrit la transparence dans un chunk tRNS, entrée de palette par entrée de palette. Une réserve honnête : en dessous de 64 couleurs, la palette manque de place pour les demi-transparences des contours antialiasés, et les bords deviennent crénelés. Pour un logo à bords lisses, restez à 128 ou 256 couleurs.',
+            ],
+            [
+                'Quelle différence entre PNG-8 et PNG-24 ?',
+                'Le PNG-8 est « indexé » : il ne stocke qu\'une palette de 256 couleurs maximum, et chaque pixel n\'est qu\'un numéro dans cette palette (un octet). Le PNG-24 est « couleurs vraies » : chaque pixel garde ses trois composantes rouge/vert/bleu (trois octets), soit 16,7 millions de teintes possibles. Beaucoup de logos sont enregistrés en PNG-24 alors qu\'ils n\'utilisent que 200 couleurs : les repasser en PNG-8 est sans perte et divise le poids par deux ou trois.',
+            ],
+            [
+                'Pourquoi mon PNG ne maigrit presque pas ?',
+                'Deux causes. Soit il était déjà bien compressé, et la marge sans perte restante ne dépasse pas quelques pourcents — c\'est normal, le PNG est sans perte par nature. Soit c\'est une photo ou un grand dégradé : ces images n\'ont aucune couleur répétée à factoriser, aucune technique sans perte n\'y gagne, et la ré-indexation peut même les alourdir. Dans ce cas, le vrai levier est de changer de format (JPG ou WebP), donc d\'accepter une perte.',
+            ],
+            [
+                'Est-ce que ré-indexer en palette est vraiment « sans perte » ?',
+                'Oui, à une condition stricte : que l\'image tienne dans 256 couleurs. Si c\'est le cas, chaque pixel retrouve exactement sa couleur d\'origine, aucune n\'est fusionnée — c\'est bijectif, donc sans perte. L\'outil compte les couleurs distinctes de votre fichier avant de compresser et vous prévient : à 256 ou moins, le résultat est identique pixel pour pixel ; au-delà, réduire davantage passe par une perte assumée.',
+            ],
+            [
+                'Est-ce comme TinyPNG ?',
+                'La méthode par défaut de TinyPNG est la quantification avec réduction de couleurs — leur documentation parle de « lossy ». C\'est efficace mais ce n\'est pas du sans perte au sens strict, et votre fichier est téléversé sur leurs serveurs. Ici, tout reste dans votre navigateur et l\'outil distingue explicitement le cas réellement sans perte (≤ 256 couleurs) du cas avec perte.',
+            ],
+        ];
+
+        view('seo/reduire-png-sans-perte', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs', 'faq'));
+    }
+
+    /**
+     * /reduire-taille-png-windows — guide « par système ». Paint/Photos ne compressent pas
+     * un PNG, ils le redimensionnent. Réutilise png-reducer.js comme alternative en ligne.
+     */
+    public function reduireTaillePngWindows(): void
+    {
+        $pageTitle       = 'Réduire la taille d\'un PNG sous Windows (Paint, Photos) — et l\'alternative';
+        $pageDescription = 'Réduire un PNG sous Windows avec Paint et l\'appli Photos, pas-à-pas. Pourquoi ces outils redimensionnent mais ne compressent pas, et comment vraiment compresser un PNG en ligne. Encart macOS.';
+        $extraCss        = ['home.css', 'compressor.css', 'seo.css', 'png-reducer.css'];
+        $extraJs         = ['png-reducer.js'];
+
+        $faq = [
+            [
+                'Windows peut-il compresser un PNG sans le redimensionner ?',
+                'Nativement, non. Ni Paint ni l\'application Photos n\'ont de réglage de compression pour le PNG : leur seul levier de poids est le nombre de pixels, donc le redimensionnement. Ré-enregistrer un PNG aux mêmes dimensions ne l\'allège pas et peut l\'alourdir. Compresser à dimensions égales suppose de réduire la palette de couleurs, ce que font seulement des outils dédiés (en ligne ou à installer).',
+            ],
+            [
+                'Faut-il installer un logiciel ?',
+                'Non. Un outil en ligne comme celui de cette page compresse un PNG dans le navigateur, sans installation ni compte, et sans envoyer le fichier sur un serveur. Les logiciels de bureau lossless (OptiPNG, zopflipng) existent et sont honnêtes, mais ils s\'installent, tournent souvent en ligne de commande, et leur gain reste modeste face à la ré-indexation de palette.',
+            ],
+            [
+                'Comment garder la transparence en réduisant un PNG sous Windows ?',
+                'Enregistrez toujours en PNG, jamais en JPEG : le JPG ne gère pas la transparence et remplit les zones transparentes en blanc. Sous le Paint de Windows 11, la transparence est conservée à l\'enregistrement en PNG ; les versions plus anciennes de Paint la remplaçaient par du blanc. L\'appli Photos et l\'outil en ligne de cette page conservent la transparence.',
+            ],
+            [
+                'Pourquoi mon PNG grossit après passage dans Paint ?',
+                'Parce que Paint réécrit la compression du fichier sans l\'optimiser. Si votre PNG d\'origine avait été compressé finement par un autre outil, la version ré-enregistrée par Paint peut être un peu plus lourde, à dimensions identiques. C\'est le signe qu\'il faut un vrai compresseur, pas un simple ré-enregistrement.',
+            ],
+        ];
+
+        view('seo/reduire-png-windows', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs', 'faq'));
+    }
+
     /** Load the programmatic SEO landing-page definitions. */
     private function pages(): array
     {
@@ -236,6 +344,9 @@ class SeoController
             '/reduire-taille-png'            => ['monthly', '0.9'],
             '/convertir-heic-en-jpg'         => ['monthly', '0.9'],
             '/optimiser-image-web'           => ['monthly', '0.9'],
+            '/compresser-image-50-ko'        => ['monthly', '0.9'],
+            '/reduire-taille-png-sans-perte' => ['monthly', '0.9'],
+            '/reduire-taille-png-windows'    => ['monthly', '0.9'],
         ];
         // Programmatic SEO landing pages.
         foreach (array_keys($this->pages()) as $slug) {

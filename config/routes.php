@@ -37,6 +37,9 @@ return [
     '/reduire-taille-png'       => ['SeoController', 'reduireTaillePng'],
     '/convertir-heic-en-jpg'    => ['SeoController', 'convertirHeicJpg'],
     '/optimiser-image-web'      => ['SeoController', 'optimiserWeb'],
+    '/compresser-image-50-ko'   => ['SeoController', 'compresserImage50Ko'],
+    '/reduire-taille-png-sans-perte' => ['SeoController', 'reduireTaillePngSansPerte'],
+    '/reduire-taille-png-windows'    => ['SeoController', 'reduireTaillePngWindows'],
 
     // Legal
     '/mentions-legales'         => ['HomeController', 'legal'],
