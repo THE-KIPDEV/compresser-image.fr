@@ -26,6 +26,7 @@
 
     <?php partial('footer'); ?>
 
+    <script>window.APP = { pro: <?= isPro() ? 'true' : 'false' ?>, loggedIn: <?= isLoggedIn() ? 'true' : 'false' ?>, pricingUrl: '<?= url('/tarifs') ?>', compressUrl: '<?= url('/api/compress') ?>' };</script>
     <script src="<?= asset('js/app.js') ?>"></script>
     <?php if (!empty($extraJs)): foreach ((array)$extraJs as $js): ?>
         <script src="<?= asset('js/' . $js) ?>"></script>

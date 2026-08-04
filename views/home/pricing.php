@@ -97,6 +97,11 @@
                 <?php else: ?>
                     <a href="<?= url('/inscription') ?>" class="btn btn-primary btn-lg btn-block">Créer un compte Pro</a>
                 <?php endif; ?>
+                <p class="pricing-reassurance">
+                    <svg width="15" height="15" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 1.5L2.5 4v4.5C2.5 12.5 5.3 15.4 9 16.5c3.7-1.1 6.5-4 6.5-8V4L9 1.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6.3 9l1.9 1.9L11.7 7.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Sans engagement — résiliable en 1 clic. <strong>Satisfait ou remboursé sous 14 jours.</strong>
+                </p>
+                <p class="pricing-anchor">Soit moins de 0,17€/jour pour des images jusqu'à -90% plus légères.</p>
             </div>
         </div>
     </div>

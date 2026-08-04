@@ -38,12 +38,33 @@
     var resizeH = document.getElementById('resizeHeight');
     var resizeLock = document.getElementById('resizeLock');
 
+    // Pro state + limits (exposed by the layout in window.APP). Pro subscribers get
+    // the server-side méga compression, 50 Mo per image and 100 images per batch —
+    // the perks they actually pay for.
+    var APP = window.APP || {};
+    var IS_PRO = !!APP.pro;
+    var COMPRESS_URL = APP.compressUrl || '/api/compress';
+    var MAX_FILE_SIZE = IS_PRO ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    var MAX_BATCH = IS_PRO ? 100 : 10;
+
     var hints = {
         light: 'Compression légère — Qualité quasi identique, fichier un peu plus léger.',
         recommended: 'Recommandé — Bon équilibre entre qualité et poids. Idéal pour le web.',
         strong: 'Compression forte — Fichier beaucoup plus léger, légère perte de qualité possible.',
-        mega: 'Méga compression — Réduction maximale via notre serveur. Abonnement Pro requis.',
+        mega: IS_PRO
+            ? 'Méga compression — Réduction maximale via notre serveur (jusqu\'à -90%). Traitée sur nos serveurs sécurisés.'
+            : 'Méga compression — Réduction maximale via notre serveur. Abonnement Pro requis.',
     };
+
+    // Unlock the Méga level for Pro subscribers so the button they paid for works.
+    (function unlockMega() {
+        if (!IS_PRO) return;
+        document.querySelectorAll('.level-btn.pro-only').forEach(function (btn) {
+            btn.classList.add('pro-only-unlocked');
+            var tag = btn.querySelector('.pro-tag');
+            if (tag) tag.remove();
+        });
+    })();
 
     // ───── Drop Zone ─────
 
@@ -68,7 +89,7 @@
 
     async function handleFiles(files) {
         const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        const maxSize = 10 * 1024 * 1024;
+        const maxSize = MAX_FILE_SIZE;
         const incoming = Array.from(files);
 
         let standard = incoming.filter(f => validTypes.includes(f.type));
@@ -94,14 +115,15 @@
         // Cap de taille : sur les fichiers standards ET les HEIC d'origine (petits).
         // Le PNG décodé depuis un HEIC est exempté : un HEIC de 2 Mo se décompresse
         // en plusieurs Mo de pixels bruts, c'est normal, pas un fichier « trop lourd ».
+        var maxLabel = IS_PRO ? '50 Mo' : '10 Mo';
         const tooBig = standard.filter(f => f.size > maxSize);
         if (tooBig.length > 0) {
-            showNotification(tooBig.length + ' fichier(s) trop volumineux (> 10 Mo), ignorés.', 'warning');
+            showNotification(tooBig.length + ' fichier(s) trop volumineux (> ' + maxLabel + '), ignorés.', 'warning');
             standard = standard.filter(f => f.size <= maxSize);
         }
         let heicOk = heicList.filter(f => f.size <= maxSize);
         if (heicOk.length < heicList.length) {
-            showNotification((heicList.length - heicOk.length) + ' HEIC trop volumineux (> 10 Mo), ignorés.', 'warning');
+            showNotification((heicList.length - heicOk.length) + ' HEIC trop volumineux (> ' + maxLabel + '), ignorés.', 'warning');
         }
 
         // Décodage HEIC → PNG, entièrement dans l'onglet (rien n'est envoyé).
@@ -122,9 +144,14 @@
             return;
         }
 
-        if (standard.length > 10) {
-            showNotification('Max 10 images en gratuit. Les suivantes sont ignorées.', 'warning');
-            standard = standard.slice(0, 10);
+        if (standard.length > MAX_BATCH) {
+            showNotification(
+                IS_PRO
+                    ? 'Max ' + MAX_BATCH + ' images par lot. Les suivantes sont ignorées.'
+                    : 'Max ' + MAX_BATCH + ' images en gratuit. Les suivantes sont ignorées.',
+                'warning'
+            );
+            standard = standard.slice(0, MAX_BATCH);
         }
 
         selectedFiles = standard;
@@ -197,7 +224,8 @@
             var level = btn.dataset.level;
 
             if (level === 'mega' && !btn.classList.contains('pro-only-unlocked')) {
-                showNotification('La méga compression est réservée aux abonnés Pro.', 'info');
+                showNotification('La méga compression (-90%) est réservée aux abonnés Pro.', 'info');
+                if (APP.pricingUrl) setTimeout(function () { window.location.href = APP.pricingUrl; }, 900);
                 return;
             }
 
@@ -225,13 +253,16 @@
         resultsList.innerHTML = '';
 
         const quality = currentQuality / 100;
+        const isMega = currentLevel === 'mega' && IS_PRO;
         let totalOriginal = 0;
         let totalCompressed = 0;
 
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
             try {
-                const result = await compressImage(file, quality);
+                const result = isMega
+                    ? await megaCompressServer(file, currentQuality)
+                    : await compressImage(file, quality);
                 compressedFiles.push(result);
                 totalOriginal += file.size;
                 totalCompressed += result.blob.size;
@@ -259,6 +290,41 @@
         compressBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 8L10 2L16 8M4 12L10 18L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Compresser';
 
         resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ───── Server-side méga compression (Pro) ─────
+    // The real Pro deliverable: files go to /api/compress, which runs pngquant
+    // (palette quantization, the TinyPNG technique) and aggressive re-encode for
+    // reductions the in-browser canvas can't match. We pull the result back once
+    // and keep it in memory (the server deletes it on download), so the result
+    // card and its download button reuse the exact same UI as the free path.
+    async function megaCompressServer(file, qualityPct) {
+        var fd = new FormData();
+        fd.append('image', file, file.name);
+        fd.append('quality', String(qualityPct || 30));
+        fd.append('mega', '1');
+
+        var resp = await fetch(COMPRESS_URL, { method: 'POST', body: fd });
+        var data = null;
+        try { data = await resp.json(); } catch (e) { /* non-JSON error page */ }
+        if (!resp.ok || !data || !data.success) {
+            throw new Error((data && data.error) ? data.error : 'Méga compression indisponible, réessayez.');
+        }
+
+        var blobResp = await fetch(data.download_url);
+        if (!blobResp.ok) throw new Error('Téléchargement du résultat impossible.');
+        var blob = await blobResp.blob();
+
+        return {
+            name: file.name,
+            originalSize: file.size,
+            blob: blob,
+            type: blob.type || file.type,
+            thumbUrl: URL.createObjectURL(file),
+            compressedUrl: URL.createObjectURL(blob),
+            unchanged: blob.size >= file.size,
+            converted: false,
+        };
     }
 
     // ───── Client-side compression via Canvas ─────
