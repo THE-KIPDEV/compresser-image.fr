@@ -12,6 +12,20 @@ class HomeController
         view('home/index', compact('pageTitle', 'pageDescription', 'extraCss', 'extraJs'));
     }
 
+    /**
+     * Version embarquable du compresseur (iframe sur des sites tiers).
+     * Outil seul, sans header/footer ni tracker, avec lien d'attribution
+     * en dur vers la page d'accueil (voir layouts/embed.php).
+     */
+    public function embed(): void
+    {
+        $pageTitle = 'Compresseur d\'images — PNG, JPEG, WebP';
+        $extraCss = ['home.css', 'compressor.css'];
+        $extraJs = ['png8-encoder.js', 'compressor.js'];
+
+        view('home/embed', compact('pageTitle', 'extraCss', 'extraJs'), 'embed');
+    }
+
     public function pricing(): void
     {
         $pageTitle = 'Tarifs — Compresser Image Pro';

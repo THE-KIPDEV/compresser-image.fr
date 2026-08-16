@@ -201,3 +201,34 @@
         </div>
     </div>
 </section>
+
+<!-- Embed -->
+<section class="faq-section" id="integrer">
+    <div class="container">
+        <h2 class="section-title">Intégrer cet outil sur votre site</h2>
+        <div style="max-width:760px;margin:0 auto;background:var(--bg);border:1px solid var(--gray-200);border-radius:16px;padding:28px">
+            <p style="color:var(--gray-600);font-size:0.95rem;margin-bottom:16px">
+                Copiez-collez ce code HTML pour afficher le compresseur d'images
+                directement sur votre blog, votre site ou votre intranet.
+            </p>
+            <pre id="embedCode" style="background:var(--bg-soft);border:1px solid var(--gray-200);border-radius:10px;padding:16px;font-size:0.78rem;color:var(--gray-700);white-space:pre-wrap;word-break:break-all;overflow-x:auto"><code>&lt;iframe src="https://compresser-image.fr/embed/compresseur" width="100%" height="650" style="border:1px solid #ddd;border-radius:8px" loading="lazy" title="Compresseur d'images"&gt;&lt;/iframe&gt;</code></pre>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:14px">
+                <button type="button" class="btn btn-primary" id="copyEmbedBtn">Copier le code</button>
+                <p style="font-size:0.8rem;color:var(--gray-500);margin:0">Gratuit. Merci de conserver le lien d'attribution.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('copyEmbedBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        var code = document.querySelector('#embedCode code').textContent;
+        navigator.clipboard.writeText(code).then(function () {
+            btn.textContent = 'Code copié !';
+            setTimeout(function () { btn.textContent = 'Copier le code'; }, 2000);
+        });
+    });
+});
+</script>

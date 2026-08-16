@@ -5,6 +5,9 @@ return [
     '/'                         => ['HomeController', 'index'],
     '/tarifs'                   => ['HomeController', 'pricing'],
 
+    // Version embarquable (iframe sur des sites tiers, noindex + attribution)
+    '/embed/compresseur'        => ['HomeController', 'embed'],
+
     // Compression API
     '/api/compress'             => ['CompressController', 'compress'],
     '/api/compress-batch'       => ['CompressController', 'compressBatch'],
