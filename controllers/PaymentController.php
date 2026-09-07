@@ -21,6 +21,14 @@ class PaymentController
             'client_reference_id' => (string) $user['id'],
             'line_items[0][price]'    => STRIPE_PRICE_PRO_MONTHLY,
             'line_items[0][quantity]' => 1,
+            // Rattrapage de panier abandonné : à l'expiration (24 h), Stripe
+            // fournit `after_expiration.recovery.url`, un lien qui rouvre CE
+            // panier. C'est ce que la relance envoie. Sans ce paramètre, un
+            // panier perdu ne laisse qu'un identifiant, et rien à envoyer.
+            // Ce tunnel est hébergé de bout en bout : pas de branche `ui_mode`
+            // `custom` ici, qui est le seul mode où Stripe refuse le paramètre.
+            'after_expiration[recovery][enabled]' => 'true',
+            'after_expiration[recovery][allow_promotion_codes]' => 'true',
         ];
 
         // If user already has a Stripe customer ID
