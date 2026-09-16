@@ -28,7 +28,10 @@ if (session_status() === PHP_SESSION_NONE) {
         'httponly'  => true,
         'samesite'  => 'Lax',
     ]);
-    session_start();
+    // Sessions en base : elles survivent au déploiement (core/session.php).
+require_once __DIR__ . '/session.php';
+session_en_base();
+session_start();
 }
 
 // Core modules
