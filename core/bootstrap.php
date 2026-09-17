@@ -29,9 +29,9 @@ if (session_status() === PHP_SESSION_NONE) {
         'samesite'  => 'Lax',
     ]);
     // Sessions en base : elles survivent au déploiement (core/session.php).
-require_once __DIR__ . '/session.php';
-session_en_base();
-session_start();
+    require_once __DIR__ . '/session.php';
+    session_en_base();
+    session_start();
 }
 
 // Core modules
