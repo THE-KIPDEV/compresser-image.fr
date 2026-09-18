@@ -1,0 +1,14 @@
+# 18/09/2026 — ne JAMAIS copier ces fichiers dans l'image.
+# Coolify écrit les variables de build EN CLAIR dans le Dockerfile (ARG CLE='valeur'),
+# et `COPY .` le posait dans la racine web : /Dockerfile servait la clé Stripe live.
+Dockerfile
+.dockerignore
+docker-compose.yml
+.env
+.env.*
+.git
+.gitignore
+.DS_Store
+.etabli
+*.md
+*.sh
