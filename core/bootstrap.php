@@ -20,18 +20,25 @@ date_default_timezone_set('Europe/Paris');
 
 // Session
 if (session_status() === PHP_SESSION_NONE) {
+    $embeddedTool = rtrim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '', '/') === '/embed/compresseur';
     session_set_cookie_params([
         'lifetime' => SESSION_LIFETIME,
         'path'     => '/',
         'domain'   => '',
-        'secure'   => !DEBUG,
+        'secure'   => $embeddedTool || !DEBUG,
         'httponly'  => true,
-        'samesite'  => 'Lax',
+        'samesite'  => $embeddedTool ? 'None' : 'Lax',
     ]);
     // Sessions en base : elles survivent au déploiement (core/session.php).
     require_once __DIR__ . '/session.php';
     session_en_base();
     session_start();
+    if ($embeddedTool) {
+        // PHP 8.3 has no Partitioned option. Keep the essential iframe session
+        // isolated by embedding site, without allowing cross-site tracking.
+        header('Set-Cookie: ' . rawurlencode(session_name()) . '=' . rawurlencode(session_id())
+            . '; Max-Age=' . SESSION_LIFETIME . '; Path=/; Secure; HttpOnly; SameSite=None; Partitioned', true);
+    }
 }
 
 // Core modules

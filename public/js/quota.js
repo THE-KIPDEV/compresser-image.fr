@@ -25,6 +25,17 @@
         });
         var data = await response.json();
         if (!response.ok) {
+            if (consume && response.status === 403 && window.self !== window.top) {
+                var message = 'Votre navigateur bloque le compteur intégré. Ouvrez le compresseur pour utiliser vos images gratuites.';
+                notice.textContent = message + ' ';
+                var open = document.createElement('a');
+                open.href = 'https://compresser-image.fr/';
+                open.target = '_blank';
+                open.rel = 'noopener';
+                open.textContent = 'Ouvrir le compresseur';
+                notice.appendChild(open);
+                throw new Error(message);
+            }
             if (data.quota) { status = data.quota; paint(); }
             throw new Error(data.error || 'Le quota est momentanément indisponible. Réessayez.');
         }

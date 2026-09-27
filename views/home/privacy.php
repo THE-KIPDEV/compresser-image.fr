@@ -13,4 +13,4 @@
     </div>
 </section>
 
-<section class="container" style="padding-bottom:2rem"><h2>Quota gratuit</h2><p>Un compteur associé à votre session permet de limiter l’offre gratuite à trois images par jour et par navigateur. Il est nécessaire au fonctionnement de l’offre et reste actif si vous refusez les cookies de mesure. Les compressions standards sont réalisées sur votre appareil ; aucun contenu d’image n’est envoyé pour compter votre utilisation.</p></section>
+<section class="container" style="padding-bottom:2rem"><h2>Quota gratuit</h2><p>Un compteur associé à votre session permet de limiter l’offre gratuite à trois images par jour et par navigateur. Il est nécessaire au fonctionnement de l’offre et reste actif si vous refusez les cookies de mesure. Les compressions standards sont réalisées sur votre appareil ; aucun contenu d’image n’est envoyé pour compter votre utilisation.</p><p>Dans une intégration sur un autre site, un cookie technique partitionné conserve le compteur uniquement pour ce site hébergeur. Si le navigateur refuse ce stockage essentiel, vous pouvez ouvrir directement le compresseur.</p></section>
