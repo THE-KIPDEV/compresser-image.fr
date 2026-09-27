@@ -12,10 +12,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/variables.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/global.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/responsive.css') ?>">
     <?php if (!empty($extraCss)): foreach ((array)$extraCss as $css): ?>
         <link rel="stylesheet" href="<?= asset('css/' . $css) ?>">
     <?php endforeach; endif; ?>
+    <link rel="stylesheet" href="<?= asset('css/responsive.css') ?>">
+
     <link rel="icon" type="image/svg+xml" href="<?= asset('images/favicon.svg') ?>">
     <!-- Pas de tracker kipstats ici : la page tourne en iframe sur des domaines tiers. -->
     <style>

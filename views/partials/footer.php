@@ -61,4 +61,5 @@
             <p>&copy; <?= date('Y') ?> compresser-image.fr — Tous droits réservés.</p>
         </div>
     </div>
+    <p style="text-align:center;padding:1rem"><button type="button" onclick="window.Consent?.open()" style="font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline">Gérer mes cookies</button></p>
 </footer>

@@ -16,7 +16,9 @@ function url(string $path = '/'): string
 
 function asset(string $path): string
 {
-    return SITE_URL . '/public/' . ltrim($path, '/');
+    $relative = ltrim($path, '/');
+    $file = PUBLIC_PATH . '/' . $relative;
+    return SITE_URL . '/public/' . $relative . (is_file($file) ? '?v=' . filemtime($file) : '');
 }
 
 function view(string $viewPath, array $data = [], string $layout = 'main'): void
