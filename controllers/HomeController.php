@@ -5,7 +5,7 @@ class HomeController
     public function index(): void
     {
         $pageTitle = 'Compresser vos images gratuitement en ligne — PNG, JPEG, WebP';
-        $pageDescription = 'Compressez vos images gratuitement en ligne. Réduisez jusqu\'à 80% la taille de vos fichiers PNG, JPEG et WebP sans perte de qualité visible. Comparez avant/après avec notre slider interactif.';
+        $pageDescription = 'Compressez vos images PNG, JPEG et WebP en ligne. 3 images gratuites par jour : réglez la qualité et comparez le résultat avant de télécharger.';
         $extraCss = ['home.css', 'compressor.css'];
         $extraJs = ['png8-encoder.js', 'compressor.js'];
 

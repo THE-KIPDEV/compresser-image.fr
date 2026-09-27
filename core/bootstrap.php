@@ -39,6 +39,7 @@ require_once CORE_PATH . '/database.php';
 require_once CORE_PATH . '/helpers.php';
 require_once CORE_PATH . '/csrf.php';
 require_once CORE_PATH . '/auth.php';
+require_once CORE_PATH . '/quota.php';
 require_once CORE_PATH . '/router.php';
 
 // Models

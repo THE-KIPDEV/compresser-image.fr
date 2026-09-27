@@ -39,16 +39,8 @@ class CompressController
             jsonResponse(['error' => 'Format non supporté. Utilisez PNG, JPEG ou WebP.'], 400);
         }
 
-        // Rate limiting for free users
-        if (!isPro()) {
-            $today = date('Y-m-d');
-            $sessionKey = 'compress_count_' . $today;
-            $count = $_SESSION[$sessionKey] ?? 0;
-            if ($count >= FREE_DAILY_LIMIT) {
-                jsonResponse(['error' => 'Limite quotidienne atteinte. Passez en Pro pour des compressions illimitées.'], 429);
-            }
-            $_SESSION[$sessionKey] = $count + 1;
-        }
+        requireCsrf();
+        if (!isPro() && compressionQuota()['remaining'] < 1) consumeCompression();
 
         // Process image
         $image = null;
@@ -135,6 +127,8 @@ class CompressController
             copy($file['tmp_name'], $outputPath);
             $compressedSize = filesize($outputPath);
         }
+
+        consumeCompression();
 
         // Log compression if user is logged in
         if (isLoggedIn()) {

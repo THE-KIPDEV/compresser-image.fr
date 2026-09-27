@@ -35,9 +35,9 @@ define('STRIPE_PRICE_PRO_MONTHLY', getenv('STRIPE_PRICE_PRO_MONTHLY') ?: '');
 // Limits
 define('FREE_MAX_FILE_SIZE',   10 * 1024 * 1024);  // 10 MB
 define('PRO_MAX_FILE_SIZE',    50 * 1024 * 1024);   // 50 MB
-define('FREE_MAX_BATCH',       10);
+define('FREE_MAX_BATCH',       3);
 define('PRO_MAX_BATCH',        100);
-define('FREE_DAILY_LIMIT',     50);
+define('FREE_DAILY_LIMIT',     3);
 
 // Session
 define('SESSION_LIFETIME', 86400 * 30); // 30 days

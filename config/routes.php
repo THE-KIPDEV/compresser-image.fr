@@ -8,6 +8,8 @@ return [
     // Version embarquable (iframe sur des sites tiers, noindex + attribution)
     '/embed/compresseur'        => ['HomeController', 'embed'],
 
+    '/api/quota'                => ['QuotaController', 'status'],
+
     // Compression API
     '/api/compress'             => ['CompressController', 'compress'],
     '/api/compress-batch'       => ['CompressController', 'compressBatch'],

@@ -506,8 +506,10 @@
     }
 
     async function run() {
-        if (!files.length) return;
+        if (!files.length || runBtn.disabled) return;
         runBtn.disabled = true;
+        try { await window.CompressionQuota.check(files.length); }
+        catch (err) { show(err.message, 'error'); runBtn.disabled = false; return; }
         results = [];
         resultsList.innerHTML = '';
 
@@ -561,6 +563,7 @@
                 var bigger = out.blob.size >= file.size && pathChoice === 'poids';
                 var final = bigger ? file : out.blob;
 
+                await window.CompressionQuota.consume();
                 results.push({
                     name: file.name, before: file.size, after: final.size,
                     colors: out.colors, palette: out.palette, url: URL.createObjectURL(final),

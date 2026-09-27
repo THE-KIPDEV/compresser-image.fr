@@ -12,3 +12,5 @@
         <p>Pour toute question : contact@compresser-image.fr</p>
     </div>
 </section>
+
+<section class="container" style="padding-bottom:2rem"><h2>Quota gratuit</h2><p>Un compteur associé à votre session permet de limiter l’offre gratuite à trois images par jour et par navigateur. Il est nécessaire au fonctionnement de l’offre et reste actif si vous refusez les cookies de mesure. Les compressions standards sont réalisées sur votre appareil ; aucun contenu d’image n’est envoyé pour compter votre utilisation.</p></section>

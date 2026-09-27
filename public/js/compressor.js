@@ -45,7 +45,7 @@
     var IS_PRO = !!APP.pro;
     var COMPRESS_URL = APP.compressUrl || '/api/compress';
     var MAX_FILE_SIZE = IS_PRO ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
-    var MAX_BATCH = IS_PRO ? 100 : 10;
+    var MAX_BATCH = IS_PRO ? 100 : 3;
 
     var hints = {
         light: 'Compression légère — Qualité quasi identique, fichier un peu plus léger.',
@@ -244,7 +244,10 @@
     }
 
     async function compressAll() {
-        if (selectedFiles.length === 0) return;
+        if (selectedFiles.length === 0 || compressBtn.disabled) return;
+        compressBtn.disabled = true;
+        try { await window.CompressionQuota.check(selectedFiles.length); }
+        catch (err) { showNotification(err.message, 'error'); compressBtn.disabled = false; return; }
 
         compressBtn.disabled = true;
         compressBtn.innerHTML = '<span class="spinner"></span> Compression...';
@@ -263,6 +266,7 @@
                 const result = isMega
                     ? await megaCompressServer(file, currentQuality)
                     : await compressImage(file, quality);
+                if (!isMega) await window.CompressionQuota.consume();
                 compressedFiles.push(result);
                 totalOriginal += file.size;
                 totalCompressed += result.blob.size;
@@ -304,7 +308,7 @@
         fd.append('quality', String(qualityPct || 30));
         fd.append('mega', '1');
 
-        var resp = await fetch(COMPRESS_URL, { method: 'POST', body: fd });
+        var resp = await fetch(COMPRESS_URL, { method: 'POST', headers: { 'X-CSRF-Token': APP.csrf || '' }, body: fd });
         var data = null;
         try { data = await resp.json(); } catch (e) { /* non-JSON error page */ }
         if (!resp.ok || !data || !data.success) {

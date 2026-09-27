@@ -36,7 +36,8 @@
     </p>
 
     <?php /* pricingUrl vide : en iframe, rediriger vers /tarifs (X-Frame-Options) afficherait une page blanche. */ ?>
-    <script>window.APP = { pro: <?= isPro() ? 'true' : 'false' ?>, loggedIn: <?= isLoggedIn() ? 'true' : 'false' ?>, pricingUrl: '', compressUrl: '<?= url('/api/compress') ?>' };</script>
+    <script>window.APP = { pro: <?= isPro() ? 'true' : 'false' ?>, loggedIn: <?= isLoggedIn() ? 'true' : 'false' ?>, pricingUrl: '', compressUrl: '<?= url('/api/compress') ?>', quotaUrl: '<?= url('/api/quota') ?>', csrf: '<?= csrfToken() ?>' };</script>
+    <script src="<?= asset('js/quota.js') ?>"></script>
     <?php if (!empty($extraJs)): foreach ((array)$extraJs as $js): ?>
         <script src="<?= asset('js/' . $js) ?>"></script>
     <?php endforeach; endif; ?>

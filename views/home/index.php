@@ -1,7 +1,7 @@
 <!-- Hero -->
 <section class="hero">
     <div class="container">
-        <h1>Compressez vos images<br>sans perdre en qualité</h1>
+        <h1>Compressez vos images<br>en quelques clics</h1>
         <p class="hero-sub">Déposez vos fichiers, choisissez le niveau de compression, téléchargez. C'est tout.<br>Gratuit, sans inscription, tout se passe dans votre navigateur.</p>
         <div class="hero-formats">
             <span class="format-pill">PNG</span>
@@ -180,7 +180,7 @@
         <div class="faq-list">
             <details class="faq-item">
                 <summary>C'est vraiment gratuit ?</summary>
-                <p>Oui. La compression standard se fait dans votre navigateur, sans limite et sans inscription. L'offre Pro est là pour ceux qui ont besoin de compresser en masse ou avec une qualité serveur.</p>
+                <p>Oui. La compression standard se fait dans votre navigateur, à raison de 3 images par jour et par navigateur, sans inscription. L'offre Pro est là pour ceux qui ont besoin de compresser en masse ou avec une qualité serveur.</p>
             </details>
             <details class="faq-item">
                 <summary>Mes images restent-elles privées ?</summary>

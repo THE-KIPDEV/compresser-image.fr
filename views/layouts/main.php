@@ -28,8 +28,9 @@
 
     <?php partial('footer'); ?>
 
-    <script>window.APP = { pro: <?= isPro() ? 'true' : 'false' ?>, loggedIn: <?= isLoggedIn() ? 'true' : 'false' ?>, pricingUrl: '<?= url('/tarifs') ?>', compressUrl: '<?= url('/api/compress') ?>' };</script>
+    <script>window.APP = { pro: <?= isPro() ? 'true' : 'false' ?>, loggedIn: <?= isLoggedIn() ? 'true' : 'false' ?>, pricingUrl: '<?= url('/tarifs') ?>', compressUrl: '<?= url('/api/compress') ?>', quotaUrl: '<?= url('/api/quota') ?>', csrf: '<?= csrfToken() ?>' };</script>
     <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/quota.js') ?>"></script>
     <?php if (!empty($extraJs)): foreach ((array)$extraJs as $js): ?>
         <script src="<?= asset('js/' . $js) ?>"></script>
     <?php endforeach; endif; ?>
